@@ -18,6 +18,7 @@ function getAudioContext(): AudioContext {
  * @param volume Volume level from 0.0 to 1.0
  */
 let alarmAudio: HTMLAudioElement | null = null;
+let currentAudioSrc: string | null = null;
 
 /**
  * Play the custom alarm sound (alarm.mp3 or a custom uploaded file)
@@ -35,24 +36,24 @@ export function playReminderSound(
     
     const audioSrc = customSoundUrl || "/alarm.mp3";
     
-    // If the audio source has changed, pause the old player and instantiate a new one
-    if (!alarmAudio || alarmAudio.src !== audioSrc) {
+    // Compare against the raw string source to avoid relative-vs-absolute URL mismatches
+    if (!alarmAudio || currentAudioSrc !== audioSrc) {
       if (alarmAudio) {
         alarmAudio.pause();
       }
       alarmAudio = new Audio(audioSrc);
+      currentAudioSrc = audioSrc;
     }
     
     alarmAudio.volume = volume;
     alarmAudio.loop = loop;
     
-    // Reset playhead if already playing
-    alarmAudio.pause();
-    alarmAudio.currentTime = 0;
-    
-    alarmAudio.play().catch((err) => {
-      console.warn("Audio playback blocked or interrupted:", err);
-    });
+    // Play the audio only if it is not currently playing
+    if (alarmAudio.paused) {
+      alarmAudio.play().catch((err) => {
+        console.warn("Audio playback blocked or interrupted:", err);
+      });
+    }
   } catch (err) {
     console.error("Failed to play reminder audio:", err);
   }
