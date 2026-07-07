@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import { AppProvider, useApp } from "./contexts/AppContext";
 import { useReminder } from "./hooks/useReminder";
 import { FirstTimeSetup } from "./components/FirstTimeSetup";
@@ -7,10 +7,12 @@ import { Statistics } from "./components/Statistics";
 import { AchievementsList } from "./components/AchievementsList";
 import { UserProfile } from "./components/UserProfile";
 import { Settings as SettingsView } from "./components/Settings";
-import { OverlayView } from "./components/OverlayView";
 import { isTauriRuntime } from "./utils/runtime";
 import { Home, BarChart3, Trophy, User as UserIcon, Settings, Play, Pause, Flame, LogOut } from "lucide-react";
 import { LoginView } from "./components/LoginView";
+
+// Lazy load the desktop overlay to prevent Tauri API crashes in Vercel web environments
+const OverlayView = lazy(() => import("./components/OverlayView").then((m) => ({ default: m.OverlayView })));
 
 // The inner main application container
 const MainAppContent: React.FC = () => {
@@ -234,7 +236,11 @@ function App() {
   }, []);
 
   if (label === "overlay") {
-    return <OverlayView />;
+    return (
+      <Suspense fallback={<div style={{ backgroundColor: "transparent", width: "100%", height: "100%" }} />}>
+        <OverlayView />
+      </Suspense>
+    );
   }
 
   if (label === "main") {
