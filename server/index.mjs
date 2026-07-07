@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 dotenv.config({ override: true });
 
 const app = express();
-const port = Number(process.env.API_PORT || 4173);
+const port = Number(process.env.PORT || process.env.API_PORT || 4173);
 const mongoUri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB || "codiotic-technology";
 const JWT_SECRET = process.env.JWT_SECRET || "hydrawalk_gemini_jwt_super_secret_key_2026";
