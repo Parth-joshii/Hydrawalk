@@ -17,59 +17,54 @@ function getAudioContext(): AudioContext {
  * Programmatically play a sweet, rising water-like chime
  * @param volume Volume level from 0.0 to 1.0
  */
-export function playReminderSound(volume: number = 0.5) {
+let alarmAudio: HTMLAudioElement | null = null;
+
+/**
+ * Play the custom alarm sound (alarm.mp3)
+ * @param volume Volume level from 0.0 to 1.0
+ * @param loop Whether to loop the alarm continuously
+ */
+export function playReminderSound(volume: number = 0.5, loop: boolean = false) {
   try {
-    const ctx = getAudioContext();
-    const now = ctx.currentTime;
+    if (typeof window === "undefined") return;
     
-    // Play three quick rising tones
-    const tones = [523.25, 659.25, 783.99]; // C5, E5, G5
-    const durations = [0.15, 0.15, 0.3];
-    const delays = [0, 0.12, 0.24];
-
-    tones.forEach((freq, idx) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freq, now + delays[idx]);
-
-      // Soft attack, smooth decay
-      gain.gain.setValueAtTime(0, now + delays[idx]);
-      gain.gain.linearRampToValueAtTime(volume * 0.4, now + delays[idx] + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + delays[idx] + durations[idx]);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(now + delays[idx]);
-      osc.stop(now + delays[idx] + durations[idx]);
+    if (!alarmAudio) {
+      alarmAudio = new Audio("/alarm.mp3");
+    }
+    
+    alarmAudio.volume = volume;
+    alarmAudio.loop = loop;
+    
+    // Reset playhead if already playing
+    alarmAudio.pause();
+    alarmAudio.currentTime = 0;
+    
+    alarmAudio.play().catch((err) => {
+      console.warn("Audio playback blocked or interrupted:", err);
     });
   } catch (err) {
     console.error("Failed to play reminder audio:", err);
   }
 }
 
-let reminderIntervalId: any = null;
-
 /**
  * Start loop playing of the reminder sound until explicitly stopped
  */
 export function startReminderSoundLoop(volume: number = 0.5) {
-  if (reminderIntervalId !== null) return;
-  playReminderSound(volume);
-  reminderIntervalId = setInterval(() => {
-    playReminderSound(volume);
-  }, 3000);
+  playReminderSound(volume, true);
 }
 
 /**
  * Stop loop playing of the reminder sound
  */
 export function stopReminderSoundLoop() {
-  if (reminderIntervalId !== null) {
-    clearInterval(reminderIntervalId);
-    reminderIntervalId = null;
+  try {
+    if (alarmAudio) {
+      alarmAudio.pause();
+      alarmAudio.currentTime = 0;
+    }
+  } catch (err) {
+    console.error("Failed to stop alarm audio:", err);
   }
 }
 
