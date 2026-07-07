@@ -59,7 +59,32 @@ export const Settings: React.FC = () => {
   };
 
   const testVolume = () => {
-    playReminderSound(user.sound_volume);
+    playReminderSound(user.sound_volume, false, user.custom_sound);
+  };
+
+  const handleCustomSoundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 1.5 * 1024 * 1024) {
+      alert("Please choose an audio file smaller than 1.5 MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64 = event.target?.result as string;
+      if (base64) {
+        const newProfile = { ...user, custom_sound: base64 };
+        await updateProfile(newProfile);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleResetSound = async () => {
+    const newProfile = { ...user, custom_sound: null };
+    await updateProfile(newProfile);
   };
 
   const handleExport = async () => {
@@ -279,6 +304,51 @@ export const Settings: React.FC = () => {
                 onChange={handleVolumeChange}
                 className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer"
               />
+
+              {/* Custom Sound Upload */}
+              <div className="pt-4 border-t border-slate-800/60 space-y-2.5">
+                <span className="text-xs font-semibold text-slate-405 uppercase block">
+                  Alarm Sound Track
+                </span>
+                
+                {user.custom_sound ? (
+                  <div className="flex items-center justify-between p-2.5 bg-slate-900/60 border border-indigo-550/20 rounded-xl">
+                    <span className="text-xs text-indigo-400 font-bold flex items-center gap-1.5">
+                      🎵 Custom sound active
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleResetSound}
+                      className="px-2 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/25 text-red-400 font-bold rounded-lg text-[10px] uppercase transition-all cursor-pointer"
+                    >
+                      Use Default
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-xs text-slate-500">
+                    Currently playing: <span className="font-bold text-slate-400">alarm.mp3 (default)</span>
+                  </div>
+                )}
+
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="custom-sound-file"
+                    accept="audio/*"
+                    onChange={handleCustomSoundUpload}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="custom-sound-file"
+                    className="w-full py-2.5 px-4 bg-slate-800 border border-slate-700/60 hover:bg-slate-700/80 text-slate-200 hover:text-white font-bold rounded-xl text-xs cursor-pointer flex items-center justify-center gap-2 transition-all active:scale-98"
+                  >
+                    📁 Upload Custom Sound (.mp3, .wav)
+                  </label>
+                </div>
+                <p className="text-[10px] text-slate-500 leading-normal">
+                  Supported formats: MP3, WAV (Max 1.5MB). Your sound will sync securely to your cloud profile!
+                </p>
+              </div>
             </div>
           )}
         </div>

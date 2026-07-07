@@ -17,6 +17,7 @@ export interface UserProfile {
   character_outfit: string;
   language: string;
   member_since: string;
+  custom_sound?: string | null;
 }
 
 export interface WaterLog {

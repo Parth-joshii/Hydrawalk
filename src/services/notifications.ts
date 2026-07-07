@@ -20,16 +20,27 @@ function getAudioContext(): AudioContext {
 let alarmAudio: HTMLAudioElement | null = null;
 
 /**
- * Play the custom alarm sound (alarm.mp3)
+ * Play the custom alarm sound (alarm.mp3 or a custom uploaded file)
  * @param volume Volume level from 0.0 to 1.0
  * @param loop Whether to loop the alarm continuously
+ * @param customSoundUrl Custom Base64 string or URL path of the user's uploaded sound
  */
-export function playReminderSound(volume: number = 0.5, loop: boolean = false) {
+export function playReminderSound(
+  volume: number = 0.5,
+  loop: boolean = false,
+  customSoundUrl?: string | null
+) {
   try {
     if (typeof window === "undefined") return;
     
-    if (!alarmAudio) {
-      alarmAudio = new Audio("/alarm.mp3");
+    const audioSrc = customSoundUrl || "/alarm.mp3";
+    
+    // If the audio source has changed, pause the old player and instantiate a new one
+    if (!alarmAudio || alarmAudio.src !== audioSrc) {
+      if (alarmAudio) {
+        alarmAudio.pause();
+      }
+      alarmAudio = new Audio(audioSrc);
     }
     
     alarmAudio.volume = volume;
@@ -50,8 +61,8 @@ export function playReminderSound(volume: number = 0.5, loop: boolean = false) {
 /**
  * Start loop playing of the reminder sound until explicitly stopped
  */
-export function startReminderSoundLoop(volume: number = 0.5) {
-  playReminderSound(volume, true);
+export function startReminderSoundLoop(volume: number = 0.5, customSoundUrl?: string | null) {
+  playReminderSound(volume, true, customSoundUrl);
 }
 
 /**
