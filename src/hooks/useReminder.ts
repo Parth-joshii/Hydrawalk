@@ -23,7 +23,7 @@ export const useReminder = () => {
 
   const persistTimerState = async (state: Partial<TimerState>) => {
     try {
-      await saveTimerState(state, user?.id);
+      await saveTimerState(state, user?.id ? String(user.id) : undefined);
     } catch (err) {
       console.error("Failed to persist reminder timer state:", err);
     }
@@ -91,7 +91,7 @@ export const useReminder = () => {
       setIsTimerReady(false);
 
       try {
-        const saved = await getTimerState(user?.id);
+        const saved = await getTimerState(user?.id ? String(user.id) : undefined);
         if (cancelled) return;
 
         if (saved.is_paused) {

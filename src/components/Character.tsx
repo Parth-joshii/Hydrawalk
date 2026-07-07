@@ -21,7 +21,7 @@ interface CharacterProps {
 
 export const Character: React.FC<CharacterProps> = ({
   state,
-  outfit = "hoodie_blue",
+  outfit: _outfit = "hoodie_blue",
   scale = 1,
   gender = "Female",
 }) => {

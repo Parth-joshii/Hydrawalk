@@ -45,7 +45,7 @@ export const OverlayView: React.FC = () => {
 
     async function setupListeners() {
       // 1. Start reminder event
-      unlistenStart = await listen<{ name: string; outfit: string }>(
+      unlistenStart = await listen<{ name: string; outfit: string; gender?: string }>(
         "start-reminder",
         (event) => {
           setUserName(event.payload.name || "Friend");
