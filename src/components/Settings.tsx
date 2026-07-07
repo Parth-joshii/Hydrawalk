@@ -20,6 +20,9 @@ export const Settings: React.FC = () => {
   const [showBackupArea, setShowBackupArea] = useState<"export" | "import" | null>(null);
   const [successMsg, setSuccessMsg] = useState("");
   const [resetConfirm, setResetConfirm] = useState(false);
+  const [customInterval, setCustomInterval] = useState<number | "">(
+    user && ![30, 45, 60, 90, 120].includes(user.reminder_interval) ? user.reminder_interval : ""
+  );
 
   if (!user) return null;
 
@@ -42,6 +45,11 @@ export const Settings: React.FC = () => {
   const handleIntervalChange = async (interval: number) => {
     const newProfile = { ...user, reminder_interval: interval };
     await updateProfile(newProfile);
+    if ([30, 45, 60, 90, 120].includes(interval)) {
+      setCustomInterval("");
+    } else {
+      setCustomInterval(interval);
+    }
   };
 
   const handleVolumeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,12 +141,37 @@ export const Settings: React.FC = () => {
                   className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     user.reminder_interval === interval
                       ? "bg-blue-600 text-white shadow-md shadow-blue-500/15"
-                      : "bg-slate-800 border border-slate-700 text-slate-300 hover:border-slate-655"
+                      : "bg-slate-800 border border-slate-700 text-slate-300 hover:border-slate-600"
                   }`}
                 >
                   {interval}m
                 </button>
               ))}
+            </div>
+
+            {/* Custom Interval Option */}
+            <div className="mt-3 flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Or custom:</span>
+              <div className="relative flex-1 max-w-[120px]">
+                <input
+                  type="number"
+                  min="1"
+                  max="1440"
+                  value={customInterval || ""}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    setCustomInterval(isNaN(val) ? "" : val);
+                    if (val > 0 && val <= 1440) {
+                      handleIntervalChange(val);
+                    }
+                  }}
+                  className="w-full pl-3 pr-8 py-1.5 bg-slate-850 dark:bg-slate-800/80 border border-slate-700/80 text-white font-bold rounded-xl text-xs focus:border-blue-500/70 focus:outline-none"
+                  placeholder="Minutes"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-slate-400">
+                  min
+                </span>
+              </div>
             </div>
           </div>
 
