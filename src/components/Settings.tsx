@@ -263,7 +263,7 @@ export const Settings: React.FC = () => {
             {/* Live Character Preview */}
             <div className="w-40 h-48 bg-slate-950/20 border border-slate-800/40 rounded-2xl flex items-center justify-center relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.05)_0%,transparent_80%)] pointer-events-none" />
-              <Character state="idle" outfit={user.character_outfit} scale={1.1} />
+              <Character state="idle" outfit={user.character_outfit} scale={1.1} gender={user.gender} />
             </div>
 
             {/* Customizer */}

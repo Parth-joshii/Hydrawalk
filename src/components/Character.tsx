@@ -16,13 +16,17 @@ interface CharacterProps {
   state: CharacterState;
   outfit?: string;
   scale?: number;
+  gender?: string; // 'Female' | 'Male' | 'Other'
 }
 
 export const Character: React.FC<CharacterProps> = ({
   state,
   outfit = "hoodie_blue",
   scale = 1,
+  gender = "Female",
 }) => {
+  // Pick image based on gender
+  const characterImage = gender === "Male" ? "/character-boy.png" : "/character-girl.png";
   const width = 150 * scale;
   const height = 200 * scale;
 
@@ -239,7 +243,7 @@ export const Character: React.FC<CharacterProps> = ({
         )}
 
         <img
-          src="/character-girl.png"
+          src={characterImage}
           alt="HydraWalk Character"
           draggable={false}
           style={{

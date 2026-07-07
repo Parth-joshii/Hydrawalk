@@ -212,6 +212,7 @@ export const useReminder = () => {
             name: user.name,
             interval: user.reminder_interval,
             outfit: user.character_outfit,
+            gender: user.gender,
           });
         }
       } catch (err) {

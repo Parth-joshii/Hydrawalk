@@ -20,6 +20,7 @@ export const OverlayView: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [charState, setCharState] = useState<CharacterState>("idle");
   const [outfit, setOutfit] = useState("hoodie_blue");
+  const [gender, setGender] = useState("Female");
   const [userName, setUserName] = useState("Friend");
   const [showPopup, setShowPopup] = useState(false);
   const [overdue, setOverdue] = useState(false);
@@ -49,6 +50,7 @@ export const OverlayView: React.FC = () => {
         (event) => {
           setUserName(event.payload.name || "Friend");
           setOutfit(event.payload.outfit || "hoodie_blue");
+          setGender(event.payload.gender || "Female");
           setVisible(true);
           setOverdue(false);
           setShowPopup(false);
@@ -257,7 +259,7 @@ export const OverlayView: React.FC = () => {
         onMouseEnter={() => setInteractive(true)}
         onMouseLeave={() => setInteractive(false)}
       >
-        <Character state={charState} outfit={outfit} scale={1.1} />
+        <Character state={charState} outfit={outfit} scale={1.1} gender={gender} />
       </div>
 
       {/* Reminder Popup Bubble */}

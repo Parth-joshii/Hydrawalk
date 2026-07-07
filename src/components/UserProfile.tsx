@@ -4,8 +4,9 @@ import { getReminderLogsForRange } from "../services/db";
 import { ShieldAlert, Award, Calendar, Weight, Clock, Pencil, X, Save } from "lucide-react";
 import { BADGES } from "./AchievementsList";
 
-// The anime girl character avatar
-const GIRL_AVATAR = "/character-girl.png";
+// Character avatars — automatically switch based on gender
+const AVATAR_BY_GENDER = (gender: string) =>
+  gender === "Male" ? "/character-boy.png" : "/character-girl.png";
 
 export const UserProfile: React.FC = () => {
   const { user, todayIntake, achievements, updateProfile } = useApp();
@@ -102,7 +103,7 @@ export const UserProfile: React.FC = () => {
         <div className="relative flex-shrink-0">
           <div className="w-28 h-28 rounded-full border-2 border-indigo-500/40 shadow-xl overflow-hidden bg-gradient-to-br from-indigo-900/40 to-purple-900/30 flex items-end justify-center">
             <img
-              src={GIRL_AVATAR}
+              src={AVATAR_BY_GENDER(user.gender)}
               alt="Profile Character"
               className="w-full h-full object-cover object-top scale-110"
               onError={(e) => {
@@ -250,7 +251,7 @@ export const UserProfile: React.FC = () => {
             {/* Avatar preview in modal */}
             <div className="flex justify-center mb-5">
               <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-indigo-500/40 bg-gradient-to-br from-indigo-900/40 to-purple-900/30">
-                <img src={GIRL_AVATAR} alt="Avatar" className="w-full h-full object-cover object-top scale-110" />
+                <img src={AVATAR_BY_GENDER(editGender)} alt="Avatar" className="w-full h-full object-cover object-top scale-110" />
               </div>
             </div>
 
