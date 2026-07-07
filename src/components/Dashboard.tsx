@@ -9,6 +9,7 @@ interface DashboardProps {
   overdueCount: number;
   onDrinkNow: () => void;
   onMute: () => void;
+  onTestReminder?: () => void;
 }
 
 const MOTIVATIONAL_QUOTES = [
@@ -27,6 +28,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   overdueCount,
   onDrinkNow,
   onMute,
+  onTestReminder,
 }) => {
   const { user, todayIntake, streak, todayLogs, addWater } = useApp();
   const [greeting, setGreeting] = useState("");
@@ -126,12 +128,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
             "{quote}"
           </p>
         </div>
-        <button
-          onClick={onDrinkNow}
-          className="self-start md:self-auto px-5 py-3 bg-gradient-to-r from-[#1a73e8] via-[#a87ffb] to-[#f472b6] text-white font-bold rounded-xl active:scale-95 transition-all cursor-pointer flex items-center gap-2 hover:opacity-90 shadow-md shadow-purple-500/10"
-        >
-          <Droplet size={18} /> Drink Water Now
-        </button>
+        <div className="flex flex-wrap gap-3 self-start md:self-auto">
+          <button
+            onClick={onDrinkNow}
+            className="px-5 py-3 bg-gradient-to-r from-[#1a73e8] via-[#a87ffb] to-[#f472b6] text-white font-bold rounded-xl active:scale-95 transition-all cursor-pointer flex items-center gap-2 hover:opacity-90 shadow-md shadow-purple-500/10 text-xs"
+          >
+            <Droplet size={16} /> Drink Water Now
+          </button>
+          {onTestReminder && (
+            <button
+              onClick={onTestReminder}
+              className="px-5 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 text-slate-200 font-bold rounded-xl active:scale-95 transition-all cursor-pointer flex items-center gap-2 text-xs"
+            >
+              🔔 Test Reminder
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Grid Layout: Circle Progress & Key Stats */}

@@ -31,6 +31,7 @@ const MainAppContent: React.FC = () => {
     handleDone,
     handleSnooze,
     handleSkip,
+    triggerReminder,
     stopSound,
   } = useReminder();
 
@@ -205,6 +206,7 @@ const MainAppContent: React.FC = () => {
               overdueCount={overdueCount}
               onDrinkNow={handleDone}
               onMute={stopSound}
+              onTestReminder={triggerReminder}
             />
           )}
           {activeTab === "stats" && <Statistics />}
