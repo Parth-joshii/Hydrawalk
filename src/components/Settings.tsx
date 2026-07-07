@@ -59,7 +59,13 @@ export const Settings: React.FC = () => {
   };
 
   const testVolume = () => {
-    playReminderSound(user.sound_volume, false, user.custom_sound);
+    playReminderSound(user.sound_volume, false, user.custom_sound, user.alarm_tone || "default");
+  };
+
+  const handleToneChange = async (tone: string) => {
+    const newProfile = { ...user, alarm_tone: tone };
+    await updateProfile(newProfile);
+    playReminderSound(user.sound_volume, false, user.custom_sound, tone);
   };
 
   const handleCustomSoundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -285,25 +291,60 @@ export const Settings: React.FC = () => {
           </div>
 
           {user.sound_enabled && (
-            <div className="space-y-2 pt-2">
-              <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-slate-400 uppercase">Volume ({Math.round(user.sound_volume * 100)}%)</span>
-                <button
-                  onClick={testVolume}
-                  className="px-2.5 py-1 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 font-bold rounded-lg text-[10px] uppercase transition-all cursor-pointer"
-                >
-                  Test Chime
-                </button>
+            <div className="space-y-4 pt-2">
+              
+              {/* Ringtone Selector */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold text-slate-400 uppercase block">
+                  Select Ringtone
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-2">
+                  {[
+                    { id: "default", label: "🔔 Classic Alarm" },
+                    { id: "retro", label: "👾 Retro Arcade" },
+                    { id: "zen", label: "🧘 Zen Bowl" },
+                    { id: "bird", label: "🐦 Forest Bird" },
+                    { id: "digital", label: "⚡ Sci-Fi Beep" },
+                  ].map((tone) => (
+                    <button
+                      key={tone.id}
+                      type="button"
+                      onClick={() => handleToneChange(tone.id)}
+                      className={`py-2 px-3 rounded-xl text-xs font-bold transition-all text-left flex items-center justify-between cursor-pointer border ${
+                        (user.alarm_tone || "default") === tone.id
+                          ? "bg-blue-500/10 border-blue-500 text-blue-400"
+                          : "bg-slate-800 border-slate-700/60 text-slate-350 hover:border-slate-600"
+                      }`}
+                    >
+                      <span>{tone.label}</span>
+                      {(user.alarm_tone || "default") === tone.id && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={user.sound_volume}
-                onChange={handleVolumeChange}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer"
-              />
+
+              <div className="space-y-2 pt-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-semibold text-slate-400 uppercase">Volume ({Math.round(user.sound_volume * 100)}%)</span>
+                  <button
+                    onClick={testVolume}
+                    className="px-2.5 py-1 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 font-bold rounded-lg text-[10px] uppercase transition-all cursor-pointer"
+                  >
+                    Test Chime
+                  </button>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={user.sound_volume}
+                  onChange={handleVolumeChange}
+                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
 
               {/* Custom Sound Upload */}
               <div className="pt-4 border-t border-slate-800/60 space-y-2.5">

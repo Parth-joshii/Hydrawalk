@@ -18,6 +18,7 @@ export interface UserProfile {
   language: string;
   member_since: string;
   custom_sound?: string | null;
+  alarm_tone?: string | null;
 }
 
 export interface WaterLog {

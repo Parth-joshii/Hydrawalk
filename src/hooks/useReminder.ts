@@ -219,7 +219,7 @@ export const useReminder = () => {
 
     // Play chime sound (iterative loop)
     if (user.sound_enabled) {
-      startReminderSoundLoop(user.sound_volume, user.custom_sound);
+      startReminderSoundLoop(user.sound_volume, user.custom_sound, user.alarm_tone || "default");
     }
 
     // Native OS Notification
