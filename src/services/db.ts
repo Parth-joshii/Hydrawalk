@@ -45,7 +45,7 @@ export interface TimerState {
   paused_remaining_seconds: number | null;
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://hydrawalk.onrender.com/api";
 const TIMER_STATE_KEY = "hydrawalk.timerState.v1";
 
 function defaultTimerState(): TimerState {
