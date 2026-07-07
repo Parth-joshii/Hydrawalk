@@ -327,7 +327,7 @@ export const useReminder = () => {
     setActiveReminder(false);
     setIsOverdue(false);
     if (user) {
-      await scheduleNextReminder(10 * 60);
+      await scheduleNextReminder(2 * 60);
     }
   };
 

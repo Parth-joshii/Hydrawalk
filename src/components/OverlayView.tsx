@@ -25,7 +25,7 @@ export const OverlayView: React.FC = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [overdue, setOverdue] = useState(false);
   const [confetti, setConfetti] = useState<ConfettiParticle[]>([]);
-  
+
   // Animation coordinates
   const [charX, setCharX] = useState(-200); // Start offscreen left
   const [isAnimating, setIsAnimating] = useState(false);
@@ -102,7 +102,7 @@ export const OverlayView: React.FC = () => {
             clearInterval(interval);
             setIsAnimating(false);
             setCharState("waving");
-            
+
             // Wait 1.5 seconds, then show popup and stop waving
             setTimeout(() => {
               setCharState("idle");
@@ -125,11 +125,11 @@ export const OverlayView: React.FC = () => {
 
   const handleActionResponse = async (action: "done" | "snooze" | "skip" | "close") => {
     setShowPopup(false);
-    
+
     if (action === "done") {
       setCharState("happy");
       triggerConfettiBurst();
-      
+
       // Celebrate for 3 seconds, then walk away
       setTimeout(() => {
         walkOut();
@@ -174,7 +174,7 @@ export const OverlayView: React.FC = () => {
   const triggerConfettiBurst = () => {
     const colors = ["#60a5fa", "#3b82f6", "#2563eb", "#bfdbfe", "#93c5fd", "#f43f5e", "#10b981", "#fbbf24"];
     const particles: ConfettiParticle[] = [];
-    
+
     for (let i = 0; i < 40; i++) {
       particles.push({
         id: Math.random(),
@@ -186,7 +186,7 @@ export const OverlayView: React.FC = () => {
         speed: Math.random() * 8 + 4,
       });
     }
-    
+
     setConfetti(particles);
   };
 
@@ -231,7 +231,7 @@ export const OverlayView: React.FC = () => {
 
   return (
     <div className="relative w-full h-full transparent-bg select-none pointer-events-none">
-      
+
       {/* Dynamic Confetti Particles */}
       {confetti.map((p) => (
         <div
@@ -293,8 +293,8 @@ export const OverlayView: React.FC = () => {
             </div>
 
             <p className="text-xs text-slate-300 mb-4 leading-relaxed">
-              {overdue 
-                ? "You missed your reminder. Drinking now will recover your current streak!" 
+              {overdue
+                ? "You missed your reminder. Drinking now will recover your current streak!"
                 : "Your body needs fluids to keep you energized. Drink a glass of water!"}
             </p>
 

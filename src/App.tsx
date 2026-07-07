@@ -98,7 +98,7 @@ const MainAppContent: React.FC = () => {
 
   return (
     <div className="flex flex-col md:flex-row h-screen w-screen bg-[#f8fafd] dark:bg-[#0c0d0e] text-slate-900 dark:text-slate-100 selection:bg-blue-500/30 overflow-hidden font-sans relative">
-      
+
       {/* Animated glowing backdrop blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="glow-blob animate-blob-1 w-[350px] h-[350px] bg-blue-400/15 dark:bg-blue-600/5 top-1/4 left-1/4" />
@@ -118,16 +118,16 @@ const MainAppContent: React.FC = () => {
             </span>
           </div>
         </div>
-        
+
         {/* Mobile Profile Avatar Trigger */}
-        <div 
+        <div
           onClick={() => setActiveTab("profile")}
           className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
         >
           <div className="w-8 h-8 rounded-full border border-indigo-500/30 overflow-hidden bg-slate-100 dark:bg-slate-900 flex items-center justify-center">
-            <img 
-              src={user.gender === "Male" ? "/character-boy.png" : "/character-girl.png"} 
-              alt="avatar" 
+            <img
+              src={user.gender === "Male" ? "/character-boy.png" : "/character-girl.png"}
+              alt="avatar"
               className="w-full h-full object-cover object-top scale-110"
             />
           </div>
@@ -137,7 +137,7 @@ const MainAppContent: React.FC = () => {
       {/* Sidebar Navigation Panel (Hidden on Mobile) */}
       <aside className="hidden md:flex w-64 bg-white dark:bg-[#1e1e1f] border-r border-[#e3e3e3] dark:border-[#2e2e2f] flex-col justify-between p-6 relative z-10 shrink-0">
         <div className="space-y-8">
-          
+
           {/* Logo Brand Title */}
           <div className="flex items-center gap-3 px-2">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-xl shadow-lg shadow-blue-500/20">
@@ -163,11 +163,10 @@ const MainAppContent: React.FC = () => {
               <button
                 key={link.id}
                 onClick={() => setActiveTab(link.id as any)}
-                className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-all cursor-pointer ${
-                  activeTab === link.id
+                className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-all cursor-pointer ${activeTab === link.id
                     ? "bg-[#e8f0fe] text-[#1a73e8] dark:bg-[#004a77]/30 dark:text-[#c2e7ff]"
                     : "text-slate-600 dark:text-slate-400 hover:bg-[#f0f4f9] dark:hover:bg-[#2e2e2f]/50"
-                }`}
+                  }`}
               >
                 {link.icon}
                 {link.label}
@@ -203,11 +202,10 @@ const MainAppContent: React.FC = () => {
             {/* Quick Pause/Resume Reminders button */}
             <button
               onClick={() => togglePause()}
-              className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-2 cursor-pointer ${
-                isPaused
+              className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all border flex items-center justify-center gap-2 cursor-pointer ${isPaused
                   ? "bg-amber-500/10 border-amber-500/25 text-amber-500 hover:bg-amber-500/20"
                   : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-350"
-              }`}
+                }`}
             >
               {isPaused ? <Play size={12} fill="currentColor" /> : <Pause size={12} fill="currentColor" />}
               {isPaused ? "Resume Reminders" : "Pause Reminders"}
@@ -260,11 +258,10 @@ const MainAppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all cursor-pointer ${
-                  isActive 
-                    ? "text-[#1a73e8] font-black dark:text-[#8ab4f8]" 
+                className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all cursor-pointer ${isActive
+                    ? "text-[#1a73e8] font-black dark:text-[#8ab4f8]"
                     : "text-slate-500 dark:text-slate-400 font-bold"
-                }`}
+                  }`}
               >
                 <span className={`${isActive ? "scale-110" : "scale-100"} transition-all`}>
                   {tab.icon}
