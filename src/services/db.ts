@@ -46,7 +46,11 @@ export interface TimerState {
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://hydrawalk.onrender.com/api";
-const TIMER_STATE_KEY = "hydrawalk.timerState.v1";
+
+// Returns a user-scoped localStorage key so each account's timer is independent
+function timerKey(userId?: string): string {
+  return `hydrawalk.timerState.v2.${userId || "guest"}`;
+}
 
 function defaultTimerState(): TimerState {
   return {
@@ -56,12 +60,12 @@ function defaultTimerState(): TimerState {
   };
 }
 
-function readTimerState(): TimerState {
+function readTimerState(userId?: string): TimerState {
   if (typeof window === "undefined") {
     return defaultTimerState();
   }
 
-  const raw = window.localStorage.getItem(TIMER_STATE_KEY);
+  const raw = window.localStorage.getItem(timerKey(userId));
   if (!raw) {
     return defaultTimerState();
   }
@@ -79,9 +83,9 @@ function readTimerState(): TimerState {
   }
 }
 
-function writeTimerState(state: TimerState): TimerState {
+function writeTimerState(state: TimerState, userId?: string): TimerState {
   if (typeof window !== "undefined") {
-    window.localStorage.setItem(TIMER_STATE_KEY, JSON.stringify(state));
+    window.localStorage.setItem(timerKey(userId), JSON.stringify(state));
   }
   return state;
 }
@@ -208,12 +212,12 @@ export async function getStreakInfo(): Promise<StreakInfo> {
   return data.streak;
 }
 
-export async function getTimerState(): Promise<TimerState> {
-  return readTimerState();
+export async function getTimerState(userId?: string): Promise<TimerState> {
+  return readTimerState(userId);
 }
 
-export async function saveTimerState(state: Partial<TimerState>): Promise<TimerState> {
-  const current = readTimerState();
+export async function saveTimerState(state: Partial<TimerState>, userId?: string): Promise<TimerState> {
+  const current = readTimerState(userId);
   const hasNextReminderAt = Object.prototype.hasOwnProperty.call(state, "next_reminder_at");
   const hasIsPaused = Object.prototype.hasOwnProperty.call(state, "is_paused");
   const hasPausedRemaining = Object.prototype.hasOwnProperty.call(state, "paused_remaining_seconds");
@@ -224,7 +228,7 @@ export async function saveTimerState(state: Partial<TimerState>): Promise<TimerS
     paused_remaining_seconds: hasPausedRemaining
       ? (state.paused_remaining_seconds == null ? null : Number(state.paused_remaining_seconds))
       : current.paused_remaining_seconds,
-  });
+  }, userId);
 }
 
 export async function resetAllUserData(): Promise<void> {

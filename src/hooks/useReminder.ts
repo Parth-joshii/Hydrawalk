@@ -22,7 +22,7 @@ export const useReminder = () => {
 
   const persistTimerState = async (state: Partial<TimerState>) => {
     try {
-      await saveTimerState(state);
+      await saveTimerState(state, user?.id);
     } catch (err) {
       console.error("Failed to persist reminder timer state:", err);
     }
@@ -90,7 +90,7 @@ export const useReminder = () => {
       setIsTimerReady(false);
 
       try {
-        const saved = await getTimerState();
+        const saved = await getTimerState(user?.id);
         if (cancelled) return;
 
         if (saved.is_paused) {
@@ -102,20 +102,28 @@ export const useReminder = () => {
           return;
         }
 
+        // If next_reminder_at has expired while logged out, shift it forward from NOW
+        // so we don't immediately fire a reminder on every login
         const fallbackSeconds = (user?.reminder_interval ?? 60) * 60;
-        const nextReminderAtValue = saved.next_reminder_at
+        let scheduledAt = saved.next_reminder_at
           ? saved.next_reminder_at
           : new Date(Date.now() + fallbackSeconds * 1000).toISOString();
-        const remaining = Math.max(0, Math.ceil((new Date(nextReminderAtValue).getTime() - Date.now()) / 1000));
+
+        const msRemaining = new Date(scheduledAt).getTime() - Date.now();
+        if (msRemaining <= 0) {
+          // Timer lapsed while logged out — restart fresh from now
+          scheduledAt = new Date(Date.now() + fallbackSeconds * 1000).toISOString();
+        }
+        const remaining = Math.max(0, Math.ceil((new Date(scheduledAt).getTime() - Date.now()) / 1000));
 
         setIsPaused(false);
         setPausedRemainingSeconds(null);
-        setNextReminderAt(nextReminderAtValue);
+        setNextReminderAt(scheduledAt);
         setSecondsRemaining(remaining);
 
         if (!saved.next_reminder_at) {
           await persistTimerState({
-            next_reminder_at: nextReminderAtValue,
+            next_reminder_at: scheduledAt,
             is_paused: false,
             paused_remaining_seconds: null,
           });
