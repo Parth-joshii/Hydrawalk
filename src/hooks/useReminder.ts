@@ -5,7 +5,7 @@ import { startReminderSoundLoop, stopReminderSoundLoop, sendNativeNotification }
 import { isTauriRuntime } from "../utils/runtime";
 
 export const useReminder = () => {
-  const { user, addWater } = useApp();
+  const { user, addWater, todayLogs } = useApp();
   const [secondsRemaining, setSecondsRemaining] = useState<number>(0);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [activeReminder, setActiveReminder] = useState<boolean>(false);
@@ -19,6 +19,7 @@ export const useReminder = () => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const overdueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const responseTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastLogIdRef = useRef<string | null>(null);
 
   const persistTimerState = async (state: Partial<TimerState>) => {
     try {
@@ -154,6 +155,24 @@ export const useReminder = () => {
       cancelled = true;
     };
   }, [user?.id, user?.reminder_interval]);
+
+  useEffect(() => {
+    if (!isTimerReady || !user) return;
+    if (todayLogs.length === 0) {
+      lastLogIdRef.current = null;
+      return;
+    }
+    const latestLog = todayLogs[0];
+    const latestId = latestLog.id ? String(latestLog.id) : null;
+
+    if (lastLogIdRef.current !== null && latestId && lastLogIdRef.current !== latestId) {
+      // If we logged a drink and there is no active popup, restart the timer
+      if (!activeReminder) {
+        scheduleNextReminder(user.reminder_interval * 60);
+      }
+    }
+    lastLogIdRef.current = latestId;
+  }, [todayLogs, isTimerReady, user?.reminder_interval, activeReminder]);
 
   useEffect(() => {
     if (!isTimerReady || isPaused || activeReminder || !user || !nextReminderAt) return;

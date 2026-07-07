@@ -382,6 +382,43 @@ app.get("/api/streak", authMiddleware, async (req, res) => {
   res.json({ streak: normalizeStreak(streak) });
 });
 
+// Scoped Timer Routes
+app.get("/api/timer", authMiddleware, async (req, res) => {
+  try {
+    const user = await collections().users.findOne({ _id: new ObjectId(req.userId) });
+    res.json({
+      next_reminder_at: user?.timer_state?.next_reminder_at || null,
+      is_paused: !!user?.timer_state?.is_paused,
+      paused_remaining_seconds: user?.timer_state?.paused_remaining_seconds != null ? Number(user.timer_state.paused_remaining_seconds) : null,
+    });
+  } catch (err) {
+    console.error("Failed to get timer state:", err);
+    res.status(500).json({ error: "Failed to load timer state." });
+  }
+});
+
+app.post("/api/timer", authMiddleware, async (req, res) => {
+  try {
+    const { next_reminder_at, is_paused, paused_remaining_seconds } = req.body;
+    await collections().users.updateOne(
+      { _id: new ObjectId(req.userId) },
+      {
+        $set: {
+          timer_state: {
+            next_reminder_at: next_reminder_at || null,
+            is_paused: !!is_paused,
+            paused_remaining_seconds: paused_remaining_seconds != null ? Number(paused_remaining_seconds) : null,
+          }
+        }
+      }
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Failed to save timer state:", err);
+    res.status(500).json({ error: "Failed to save timer state." });
+  }
+});
+
 // Scoped Achievement Routes
 app.get("/api/achievements", authMiddleware, async (req, res) => {
   const achievements = await collections().achievements

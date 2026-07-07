@@ -213,7 +213,18 @@ export async function getStreakInfo(): Promise<StreakInfo> {
 }
 
 export async function getTimerState(userId?: string): Promise<TimerState> {
-  return readTimerState(userId);
+  const token = typeof window !== "undefined" ? localStorage.getItem("hydrawalk_jwt_token") : null;
+  if (!token) {
+    return readTimerState(userId);
+  }
+  try {
+    const data = await api<TimerState>("/timer");
+    writeTimerState(data, userId);
+    return data;
+  } catch (err) {
+    console.warn("Failed to fetch timer from API, falling back to localStorage:", err);
+    return readTimerState(userId);
+  }
 }
 
 export async function saveTimerState(state: Partial<TimerState>, userId?: string): Promise<TimerState> {
@@ -222,13 +233,29 @@ export async function saveTimerState(state: Partial<TimerState>, userId?: string
   const hasIsPaused = Object.prototype.hasOwnProperty.call(state, "is_paused");
   const hasPausedRemaining = Object.prototype.hasOwnProperty.call(state, "paused_remaining_seconds");
 
-  return writeTimerState({
+  const updated: TimerState = {
     next_reminder_at: hasNextReminderAt ? (state.next_reminder_at ?? null) : current.next_reminder_at,
     is_paused: hasIsPaused ? Boolean(state.is_paused) : current.is_paused,
     paused_remaining_seconds: hasPausedRemaining
       ? (state.paused_remaining_seconds == null ? null : Number(state.paused_remaining_seconds))
       : current.paused_remaining_seconds,
-  }, userId);
+  };
+
+  writeTimerState(updated, userId);
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("hydrawalk_jwt_token") : null;
+  if (token) {
+    try {
+      await api<void>("/timer", {
+        method: "POST",
+        body: JSON.stringify(updated),
+      });
+    } catch (err) {
+      console.warn("Failed to sync timer to API:", err);
+    }
+  }
+
+  return updated;
 }
 
 export async function resetAllUserData(): Promise<void> {
