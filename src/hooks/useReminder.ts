@@ -415,6 +415,12 @@ export const useReminder = () => {
     };
   }, [user, responseTime]);
 
+  const resetTimer = async () => {
+    if (user) {
+      await scheduleNextReminder(user.reminder_interval * 60);
+    }
+  };
+
   return {
     isTimerReady,
     secondsRemaining,
@@ -427,6 +433,7 @@ export const useReminder = () => {
     handleSnooze,
     handleSkip,
     triggerReminder,
+    resetTimer,
     stopSound: stopReminderSoundLoop,
   };
 };

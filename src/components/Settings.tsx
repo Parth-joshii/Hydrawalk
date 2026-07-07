@@ -14,7 +14,7 @@ import {
   FolderDown,
 } from "lucide-react";
 
-export const Settings: React.FC = () => {
+export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onResetTimer }) => {
   const { user, theme, setThemeMode, setOutfit, updateProfile, refreshData } = useApp();
   const [backupText, setBackupText] = useState("");
   const [showBackupArea, setShowBackupArea] = useState<"export" | "import" | null>(null);
@@ -181,28 +181,44 @@ export const Settings: React.FC = () => {
             </div>
 
             {/* Custom Interval Option */}
-            <div className="mt-3 flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-500">Or custom:</span>
-              <div className="relative flex-1 max-w-[120px]">
-                <input
-                  type="number"
-                  min="1"
-                  max="1440"
-                  value={customInterval || ""}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    setCustomInterval(isNaN(val) ? "" : val);
-                    if (val > 0 && val <= 1440) {
-                      handleIntervalChange(val);
-                    }
-                  }}
-                  className="w-full pl-3 pr-8 py-1.5 bg-slate-850 dark:bg-slate-800/80 border border-slate-700/80 text-white font-bold rounded-xl text-xs focus:border-blue-500/70 focus:outline-none"
-                  placeholder="Minutes"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-slate-400">
-                  min
-                </span>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-500">Or custom:</span>
+                <div className="relative flex-1 max-w-[120px]">
+                  <input
+                    type="number"
+                    min="1"
+                    max="1440"
+                    value={customInterval || ""}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setCustomInterval(isNaN(val) ? "" : val);
+                      if (val > 0 && val <= 1440) {
+                        handleIntervalChange(val);
+                      }
+                    }}
+                    className="w-full pl-3 pr-8 py-1.5 bg-slate-850 dark:bg-slate-800/80 border border-slate-700/80 text-white font-bold rounded-xl text-xs focus:border-blue-500/70 focus:outline-none"
+                    placeholder="Minutes"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-slate-405">
+                    min
+                  </span>
+                </div>
               </div>
+
+              {onResetTimer && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await onResetTimer();
+                    showTemporaryMessage("Reminder timer reset successfully!");
+                  }}
+                  className="px-3 py-1.5 bg-blue-650/10 hover:bg-blue-650/20 border border-blue-500/25 hover:border-blue-500/50 text-blue-400 text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                  title="Reset the active countdown timer back to the selected interval"
+                >
+                  ⚡ Reset Timer
+                </button>
+              )}
             </div>
           </div>
 

@@ -32,6 +32,7 @@ const MainAppContent: React.FC = () => {
     handleSnooze,
     handleSkip,
     triggerReminder,
+    resetTimer,
     stopSound,
   } = useReminder();
 
@@ -240,7 +241,7 @@ const MainAppContent: React.FC = () => {
             {activeTab === "stats" && <Statistics />}
             {activeTab === "achievements" && <AchievementsList />}
             {activeTab === "profile" && <UserProfile />}
-            {activeTab === "settings" && <SettingsView />}
+            {activeTab === "settings" && <SettingsView onResetTimer={resetTimer} />}
           </div>
         </main>
 
