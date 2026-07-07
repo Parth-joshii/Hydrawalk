@@ -2,11 +2,21 @@ import React, { useEffect, useState } from "react";
 import { useApp } from "../contexts/AppContext";
 import { getReminderLogsForRange } from "../services/db";
 import { ShieldAlert, Award, Calendar, Weight, Clock, Pencil, X, Save } from "lucide-react";
-import { BADGES } from "./AchievementsList";
+import { BADGES, Badge } from "./AchievementsList";
 
 // Character avatars — automatically switch based on gender
-const AVATAR_BY_GENDER = (gender: string) =>
-  gender === "Male" ? "/character-boy.png" : "/character-girl.png";
+const AVATAR_BY_GENDER = (gender: string, outfit: string = "hoodie_blue") => {
+  if (gender === "Male") {
+    if (outfit === "hoodie_pink") return "/character-boy-pink.png";
+    if (outfit === "hoodie_dark") return "/character-boy-dark.png";
+    if (outfit === "hoodie_blue") return "/character-boy-blue.png";
+    return "/character-boy.png";
+  } else {
+    if (outfit === "hoodie_pink") return "/character-girl-pink.png";
+    if (outfit === "hoodie_dark") return "/character-girl-dark.png";
+    return "/character-girl.png";
+  }
+};
 
 export const UserProfile: React.FC = () => {
   const { user, todayIntake, achievements, updateProfile } = useApp();
@@ -103,7 +113,7 @@ export const UserProfile: React.FC = () => {
         <div className="relative flex-shrink-0">
           <div className="w-28 h-28 rounded-full border-2 border-indigo-500/40 shadow-xl overflow-hidden bg-gradient-to-br from-indigo-900/40 to-purple-900/30 flex items-end justify-center">
             <img
-              src={AVATAR_BY_GENDER(user.gender)}
+              src={AVATAR_BY_GENDER(user.gender, user.character_outfit)}
               alt="Profile Character"
               className="w-full h-full object-cover object-top scale-110"
               onError={(e) => {
@@ -206,7 +216,7 @@ export const UserProfile: React.FC = () => {
           </div>
         ) : (
           <div className="flex flex-wrap gap-4">
-            {BADGES.map((badge) => {
+            {BADGES.map((badge: Badge) => {
               const isUnlocked = achievements.includes(badge.id);
               if (!isUnlocked) return null;
               return (
@@ -251,7 +261,7 @@ export const UserProfile: React.FC = () => {
             {/* Avatar preview in modal */}
             <div className="flex justify-center mb-5">
               <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-indigo-500/40 bg-gradient-to-br from-indigo-900/40 to-purple-900/30">
-                <img src={AVATAR_BY_GENDER(editGender)} alt="Avatar" className="w-full h-full object-cover object-top scale-110" />
+                <img src={AVATAR_BY_GENDER(editGender, user.character_outfit)} alt="Avatar" className="w-full h-full object-cover object-top scale-110" />
               </div>
             </div>
 
