@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useApp } from "../contexts/AppContext";
 import { getReminderLogsForRange } from "../services/db";
-import { ShieldAlert, Award, Calendar, Weight, Clock, Compass } from "lucide-react";
+import { ShieldAlert, Award, Calendar, Weight, Clock, Compass, Edit2, X, Save } from "lucide-react";
 import { BADGES } from "./AchievementsList";
 
 export const UserProfile: React.FC = () => {
-  const { user, todayIntake, achievements } = useApp();
+  const { user, todayIntake, achievements, updateProfile } = useApp();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<Partial<typeof user>>({});
   const [lifetimeStats, setLifetimeStats] = useState({
     totalCount: 0,
     completed: 0,
@@ -58,8 +60,16 @@ export const UserProfile: React.FC = () => {
         <div className="absolute right-0 top-0 w-64 h-64 bg-blue-500/5 rounded-full filter blur-3xl pointer-events-none" />
 
         {/* User Avatar */}
-        <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 border border-blue-400/30 flex items-center justify-center text-4xl shadow-xl text-white select-none">
-          {user.gender === "Female" ? "👧" : user.gender === "Male" ? "👦" : "🧑"}
+        <div className="w-24 h-24 rounded-full bg-slate-800 border-2 border-blue-400/50 flex items-center justify-center text-4xl shadow-xl overflow-hidden text-white select-none relative group">
+          <img src="/avatar.png" alt="Profile" className="w-full h-full object-cover" onError={(e) => {
+            (e.target as HTMLImageElement).style.display = 'none';
+          }} />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            {user.gender === "Female" ? "👧" : user.gender === "Male" ? "👦" : "🧑"}
+          </div>
+          <img src="/avatar.png" alt="Profile" className="absolute inset-0 w-full h-full object-cover z-10" onError={(e) => {
+            (e.target as HTMLImageElement).style.display = 'none';
+          }} />
         </div>
 
         {/* Text */}
@@ -77,6 +87,14 @@ export const UserProfile: React.FC = () => {
             </span>
           </div>
         </div>
+
+        {/* Edit Button */}
+        <button 
+          onClick={() => { setEditForm(user); setIsEditing(true); }}
+          className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors cursor-pointer"
+        >
+          <Edit2 size={18} />
+        </button>
       </div>
 
       {/* Grid: Health Metrics Card & Reminders Card */}
@@ -167,6 +185,94 @@ export const UserProfile: React.FC = () => {
           </div>
         )}
       </div>
+
+      </div>
+
+      {/* Edit Profile Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-700/50 rounded-2xl w-full max-w-md p-6 shadow-2xl overflow-hidden relative">
+            <button 
+              onClick={() => setIsEditing(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
+            <h2 className="text-xl font-extrabold text-white mb-6">Edit Profile</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">Name</label>
+                <input 
+                  type="text" 
+                  value={editForm.name || ""} 
+                  onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">Age</label>
+                  <input 
+                    type="number" 
+                    value={editForm.age || ""} 
+                    onChange={(e) => setEditForm({...editForm, age: Number(e.target.value)})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">Weight (kg)</label>
+                  <input 
+                    type="number" 
+                    value={editForm.weight || ""} 
+                    onChange={(e) => setEditForm({...editForm, weight: Number(e.target.value)})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">Wake Time</label>
+                  <input 
+                    type="time" 
+                    value={editForm.wake_time || ""} 
+                    onChange={(e) => setEditForm({...editForm, wake_time: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">Sleep Time</label>
+                  <input 
+                    type="time" 
+                    value={editForm.sleep_time || ""} 
+                    onChange={(e) => setEditForm({...editForm, sleep_time: e.target.value})}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">Daily Target (ml)</label>
+                <input 
+                  type="number" 
+                  value={editForm.daily_goal || ""} 
+                  onChange={(e) => setEditForm({...editForm, daily_goal: Number(e.target.value)})}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <button 
+              onClick={async () => {
+                await updateProfile(editForm as any);
+                setIsEditing(false);
+              }}
+              className="mt-8 w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Save size={18} /> Save Profile
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
