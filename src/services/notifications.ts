@@ -130,12 +130,38 @@ function playDigitalBeep(ctx: AudioContext, volume: number) {
   });
 }
 
+// Tone 1: Original Rising Water Chime
+function playOriginalChime(ctx: AudioContext, volume: number) {
+  const now = ctx.currentTime;
+  const tones = [523.25, 659.25, 783.99]; // C5, E5, G5
+  const durations = [0.15, 0.15, 0.3];
+  const delays = [0, 0.12, 0.24];
+
+  tones.forEach((freq, idx) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, now + delays[idx]);
+
+    gain.gain.setValueAtTime(0, now + delays[idx]);
+    gain.gain.linearRampToValueAtTime(volume * 0.4, now + delays[idx] + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + delays[idx] + durations[idx]);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now + delays[idx]);
+    osc.stop(now + delays[idx] + durations[idx]);
+  });
+}
+
 /**
  * Play the alarm sound (loaded file, or programmatic synthesizers)
  * @param volume Volume level from 0.0 to 1.0
  * @param loop Whether to loop the alarm continuously
  * @param customSoundUrl Custom Base64 string or URL path of the user's uploaded sound
- * @param tone Tone type selection ('default' | 'retro' | 'zen' | 'bird' | 'digital')
+ * @param tone Tone type selection ('default' | 'original' | 'retro' | 'zen' | 'bird' | 'digital')
  */
 export function playReminderSound(
   volume: number = 0.5,
@@ -185,7 +211,8 @@ export function playReminderSound(
       }
       
       const playToneOnce = () => {
-        if (tone === "retro") playRetroArcade(ctx, volume);
+        if (tone === "original") playOriginalChime(ctx, volume);
+        else if (tone === "retro") playRetroArcade(ctx, volume);
         else if (tone === "zen") playZenBowl(ctx, volume);
         else if (tone === "bird") playForestBird(ctx, volume);
         else if (tone === "digital") playDigitalBeep(ctx, volume);
@@ -195,7 +222,8 @@ export function playReminderSound(
       
       if (loop) {
         let intervalMs = 2000;
-        if (tone === "zen") intervalMs = 4000;
+        if (tone === "original") intervalMs = 3000;
+        else if (tone === "zen") intervalMs = 4000;
         else if (tone === "retro") intervalMs = 1500;
         else if (tone === "bird") intervalMs = 2000;
         else if (tone === "digital") intervalMs = 1200;

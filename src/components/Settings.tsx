@@ -301,6 +301,7 @@ export const Settings: React.FC = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-2">
                   {[
                     { id: "default", label: "🔔 Classic Alarm" },
+                    { id: "original", label: "💧 Original Chime" },
                     { id: "retro", label: "👾 Retro Arcade" },
                     { id: "zen", label: "🧘 Zen Bowl" },
                     { id: "bird", label: "🐦 Forest Bird" },
