@@ -193,7 +193,7 @@ export const Statistics: React.FC = () => {
       
       {/* Header title */}
       <div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight">Hydration Analytics</h1>
+        <h1 className="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight">Hydration Analytics</h1>
         <p className="text-sm text-slate-400 mt-1">
           Detailed metrics compiled from your MongoDB activity log.
         </p>
@@ -208,7 +208,7 @@ export const Statistics: React.FC = () => {
           </div>
           <div>
             <span className="block text-xs font-semibold text-slate-400 uppercase">Avg. Daily Intake</span>
-            <span className="text-2xl font-black text-white">{statsSummary.avgIntake} ml</span>
+            <span className="text-2xl font-black text-slate-850 dark:text-white">{statsSummary.avgIntake} ml</span>
             <span className="block text-[10px] text-slate-400 mt-0.5">Over the last 7 days</span>
           </div>
         </div>
@@ -219,7 +219,7 @@ export const Statistics: React.FC = () => {
           </div>
           <div>
             <span className="block text-xs font-semibold text-slate-400 uppercase">Compliance Rate</span>
-            <span className="text-2xl font-black text-white">{statsSummary.complianceRate}%</span>
+            <span className="text-2xl font-black text-slate-850 dark:text-white">{statsSummary.complianceRate}%</span>
             <span className="block text-[10px] text-slate-400 mt-0.5">Completed reminders vs skips</span>
           </div>
         </div>
@@ -230,7 +230,7 @@ export const Statistics: React.FC = () => {
           </div>
           <div>
             <span className="block text-xs font-semibold text-slate-400 uppercase">Response Time</span>
-            <span className="text-2xl font-black text-white">{statsSummary.avgResponseSec}s</span>
+            <span className="text-2xl font-black text-slate-850 dark:text-white">{statsSummary.avgResponseSec}s</span>
             <span className="block text-[10px] text-slate-400 mt-0.5">Average time to click Done</span>
           </div>
         </div>
@@ -241,7 +241,7 @@ export const Statistics: React.FC = () => {
           </div>
           <div>
             <span className="block text-xs font-semibold text-slate-400 uppercase">Lifetime Volume</span>
-            <span className="text-2xl font-black text-white">{(statsSummary.totalIntake / 1000).toFixed(2)} L</span>
+            <span className="text-2xl font-black text-slate-850 dark:text-white">{(statsSummary.totalIntake / 1000).toFixed(2)} L</span>
             <span className="block text-[10px] text-slate-400 mt-0.5">All-time logged volume</span>
           </div>
         </div>
@@ -254,16 +254,16 @@ export const Statistics: React.FC = () => {
         {/* Left: Intake History Graph (Weekly/Monthly) */}
         <div className="lg:col-span-2 p-6 glass-card rounded-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
               <BarChart3 size={18} className="text-blue-400" /> Intake History
             </h2>
-            <div className="flex bg-slate-800/80 p-1 rounded-xl border border-slate-700/50">
+            <div className="flex bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700/50">
               <button
                 onClick={() => setActiveTab("weekly")}
                 className={`px-3 py-1.5 text-xs font-bold rounded-lg cursor-pointer transition-all ${
                   activeTab === "weekly"
                     ? "bg-blue-600 text-white"
-                    : "text-slate-400 hover:text-white"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
                 }`}
               >
                 Weekly (7d)
@@ -273,7 +273,7 @@ export const Statistics: React.FC = () => {
                 className={`px-3 py-1.5 text-xs font-bold rounded-lg cursor-pointer transition-all ${
                   activeTab === "monthly"
                     ? "bg-blue-600 text-white"
-                    : "text-slate-400 hover:text-white"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
                 }`}
               >
                 Monthly (30d)
@@ -323,7 +323,7 @@ export const Statistics: React.FC = () => {
 
         {/* Right: Reminder outcomes pie chart */}
         <div className="lg:col-span-1 p-6 glass-card rounded-2xl flex flex-col justify-between">
-          <h2 className="text-lg font-bold text-white mb-4">Reminder Distribution</h2>
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Reminder Distribution</h2>
           
           <div className="h-48 w-full flex items-center justify-center">
             {outcomeData.length === 0 ? (
@@ -364,7 +364,7 @@ export const Statistics: React.FC = () => {
                   <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }}></div>
                   <span className="text-slate-400 font-semibold">{d.name}</span>
                 </div>
-                <span className="font-bold text-white">{d.value} logged</span>
+                <span className="font-bold text-slate-800 dark:text-white">{d.value} logged</span>
               </div>
             ))}
             {outcomeData.length === 0 && (
@@ -377,7 +377,7 @@ export const Statistics: React.FC = () => {
 
         {/* Full width bottom chart: Hourly heat distribution */}
         <div className="lg:col-span-3 p-6 glass-card rounded-2xl">
-          <h2 className="text-lg font-bold text-white mb-6">Hydration Hourly Activity</h2>
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-6">Hydration Hourly Activity</h2>
           <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={hourlyData}>
