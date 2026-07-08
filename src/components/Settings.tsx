@@ -139,7 +139,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
       
       {/* Title */}
       <div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight">System Settings</h1>
+        <h1 className="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight">System Settings</h1>
         <p className="text-sm text-slate-400 mt-1">
           Customize reminders, character visuals, and data options.
         </p>
@@ -155,7 +155,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
         
         {/* General Settings */}
         <div className="p-6 glass-card rounded-2xl space-y-4">
-          <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
             <SettingsIcon size={18} className="text-blue-400" /> Reminder Preferences
           </h2>
 
@@ -172,7 +172,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
                   className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     user.reminder_interval === interval
                       ? "bg-blue-600 text-white shadow-md shadow-blue-500/15"
-                      : "bg-slate-800 border border-slate-700 text-slate-300 hover:border-slate-600"
+                      : "bg-slate-100/50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-750"
                   }`}
                 >
                   {interval}m
@@ -197,7 +197,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
                         handleIntervalChange(val);
                       }
                     }}
-                    className="w-full pl-3 pr-8 py-1.5 bg-slate-850 dark:bg-slate-800/80 border border-slate-700/80 text-white font-bold rounded-xl text-xs focus:border-blue-500/70 focus:outline-none"
+                    className="w-full pl-3 pr-8 py-1.5 bg-slate-100/50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-slate-800 dark:text-white font-bold rounded-xl text-xs focus:border-blue-500/70 focus:outline-none"
                     placeholder="Minutes"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-slate-405">
@@ -225,8 +225,8 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-sm font-semibold text-white block">Launch on Startup</span>
-                <span className="text-xs text-slate-400">Launch HydraWalk when Windows boots.</span>
+                <span className="text-sm font-semibold text-slate-800 dark:text-white block">Launch on Startup</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Launch HydraWalk when Windows boots.</span>
               </div>
               <button
                 type="button"
@@ -245,8 +245,8 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
 
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-sm font-semibold text-white block">Overlay Animations</span>
-                <span className="text-xs text-slate-400">Show the walking girl on the desktop.</span>
+                <span className="text-sm font-semibold text-slate-800 dark:text-white block">Overlay Animations</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Show the walking girl on the desktop.</span>
               </div>
               <button
                 type="button"
@@ -265,13 +265,13 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
 
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-sm font-semibold text-white block">Dark Mode</span>
-                <span className="text-xs text-slate-400">Toggle application visual theme.</span>
+                <span className="text-sm font-semibold text-slate-800 dark:text-white block">Dark Mode</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Toggle application visual theme.</span>
               </div>
               <button
                 type="button"
                 onClick={() => setThemeMode(theme === "dark" ? "light" : "dark")}
-                className="flex items-center gap-1.5 px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold rounded-lg text-slate-200 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded-lg text-slate-700 dark:text-slate-200 transition-all cursor-pointer"
               >
                 {theme === "dark" ? <Moon size={12} /> : <Sun size={12} />}
                 {theme === "dark" ? "Dark" : "Light"}
@@ -282,14 +282,14 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
 
         {/* Sound settings */}
         <div className="p-6 glass-card rounded-2xl space-y-4">
-          <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-            <Volume2 size={18} className="text-blue-400" /> Audio & Sound
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
+            <Volume2 size={18} className="text-blue-500" /> Audio & Sound
           </h2>
 
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm font-semibold text-white block">Enable Audio Alerts</span>
-              <span className="text-xs text-slate-400">Play a pleasant chime when reminding.</span>
+              <span className="text-sm font-semibold text-slate-800 dark:text-white block">Enable Audio Alerts</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Play a pleasant chime when reminding.</span>
             </div>
             <button
               type="button"
@@ -329,8 +329,8 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
                       onClick={() => handleToneChange(tone.id)}
                       className={`py-2 px-3 rounded-xl text-xs font-bold transition-all text-left flex items-center justify-between cursor-pointer border ${
                         (user.alarm_tone || "default") === tone.id
-                          ? "bg-blue-500/10 border-blue-500 text-blue-400"
-                          : "bg-slate-800 border-slate-700/60 text-slate-350 hover:border-slate-600"
+                          ? "bg-blue-500/10 border-blue-500 text-blue-600 dark:text-blue-400"
+                          : "bg-slate-100/50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-750"
                       }`}
                     >
                       <span>{tone.label}</span>
@@ -344,10 +344,10 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
 
               <div className="space-y-2 pt-2">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-semibold text-slate-400 uppercase">Volume ({Math.round(user.sound_volume * 100)}%)</span>
+                  <span className="font-semibold text-slate-500 dark:text-slate-400 uppercase">Volume ({Math.round(user.sound_volume * 100)}%)</span>
                   <button
                     onClick={testVolume}
-                    className="px-2.5 py-1 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 font-bold rounded-lg text-[10px] uppercase transition-all cursor-pointer"
+                    className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-755 dark:text-slate-300 font-bold rounded-lg text-[10px] uppercase transition-all cursor-pointer"
                   >
                     Test Chime
                   </button>
@@ -359,7 +359,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
                   step="0.05"
                   value={user.sound_volume}
                   onChange={handleVolumeChange}
-                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                  className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer"
                 />
               </div>
 
@@ -398,7 +398,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
                   />
                   <label
                     htmlFor="custom-sound-file"
-                    className="w-full py-2.5 px-4 bg-slate-800 border border-slate-700/60 hover:bg-slate-700/80 text-slate-200 hover:text-white font-bold rounded-xl text-xs cursor-pointer flex items-center justify-center gap-2 transition-all active:scale-98"
+                    className="w-full py-2.5 px-4 bg-slate-100/60 dark:bg-slate-800 border border-slate-250 dark:border-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white font-bold rounded-xl text-xs cursor-pointer flex items-center justify-center gap-2 transition-all active:scale-98"
                   >
                     📁 Upload Custom Sound (.mp3, .wav)
                   </label>
@@ -413,7 +413,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
 
         {/* Character Visual Customization */}
         <div className="p-6 glass-card rounded-2xl space-y-4 md:col-span-2">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2">
             🚶‍♀️ Companion Character Visuals
           </h2>
           <p className="text-xs text-slate-400">
@@ -422,7 +422,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
 
           <div className="flex flex-col sm:flex-row items-center gap-8 pt-2">
             {/* Live Character Preview */}
-            <div className="w-40 h-48 bg-slate-950/20 border border-slate-800/40 rounded-2xl flex items-center justify-center relative overflow-hidden">
+            <div className="w-40 h-48 bg-slate-100/60 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800/40 rounded-2xl flex items-center justify-center relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.05)_0%,transparent_80%)] pointer-events-none" />
               <Character state="idle" outfit={user.character_outfit} scale={1.1} gender={user.gender} />
             </div>
@@ -443,12 +443,12 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
                     onClick={() => setOutfit(item.id)}
                     className={`p-3 rounded-xl border flex flex-col items-center gap-2 cursor-pointer transition-all ${
                       user.character_outfit === item.id
-                        ? "bg-slate-800 border-blue-500 shadow-md shadow-blue-500/10"
-                        : "bg-slate-900/40 border-slate-800 hover:border-slate-700"
+                        ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
+                        : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
                     }`}
                   >
                     <div className={`w-8 h-8 rounded-full ${item.color} shadow-inner`} />
-                    <span className="text-[10px] font-bold text-white">{item.label}</span>
+                    <span className="text-[10px] font-bold text-slate-700 dark:text-white">{item.label}</span>
                   </button>
                 ))}
               </div>
@@ -458,7 +458,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
 
         {/* Data & Backup */}
         <div className="p-6 glass-card rounded-2xl space-y-4 md:col-span-2">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
             🔒 Data Backup & Recovery
           </h2>
           <p className="text-xs text-slate-400">
@@ -468,13 +468,13 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
           <div className="flex flex-wrap gap-3 pt-2">
             <button
               onClick={handleExport}
-              className="px-4 py-2.5 bg-slate-800 border border-slate-750 hover:bg-slate-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-250 dark:border-slate-750 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
             >
               <FolderDown size={14} /> Export Backup
             </button>
             <button
               onClick={() => setShowBackupArea(showBackupArea === "import" ? null : "import")}
-              className="px-4 py-2.5 bg-slate-800 border border-slate-750 hover:bg-slate-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-250 dark:border-slate-750 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
             >
               <FolderUp size={14} /> Import Backup
             </button>
@@ -501,7 +501,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
                 onChange={(e) => setBackupText(e.target.value)}
                 placeholder="Paste backup JSON here..."
                 readOnly={showBackupArea === "export"}
-                className="w-full h-24 bg-slate-950/30 border border-slate-800 rounded-xl p-3 text-slate-300 text-xs font-mono focus:outline-none focus:border-blue-500"
+                className="w-full h-24 bg-slate-100/50 dark:bg-slate-950/30 border border-slate-250 dark:border-slate-800 rounded-xl p-3 text-slate-750 dark:text-slate-300 text-xs font-mono focus:outline-none focus:border-blue-500"
               />
               {showBackupArea === "import" && (
                 <button

@@ -129,7 +129,7 @@ export const UserProfile: React.FC = () => {
         {/* Text + Edit Button */}
         <div className="text-center sm:text-left space-y-1 flex-1">
           <div className="flex items-center justify-center sm:justify-start gap-3">
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">{user.name}</h1>
+            <h1 className="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight">{user.name}</h1>
             <button
               onClick={openEdit}
               title="Edit Profile"
@@ -139,10 +139,10 @@ export const UserProfile: React.FC = () => {
             </button>
           </div>
           <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-1.5">
-            <span className="px-3 py-1 bg-slate-800 border border-slate-700/50 rounded-lg text-xs font-semibold text-slate-300 flex items-center gap-1">
+            <span className="px-3 py-1 bg-slate-100/50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-xs font-semibold text-slate-650 dark:text-slate-300 flex items-center gap-1">
               <Calendar size={12} className="text-slate-400" /> Age {user.age}
             </span>
-            <span className="px-3 py-1 bg-slate-800 border border-slate-700/50 rounded-lg text-xs font-semibold text-slate-300 flex items-center gap-1">
+            <span className="px-3 py-1 bg-slate-100/50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-xs font-semibold text-slate-650 dark:text-slate-300 flex items-center gap-1">
               <Clock size={12} className="text-slate-400" /> Member since {memberSinceDate}
             </span>
           </div>
@@ -154,25 +154,25 @@ export const UserProfile: React.FC = () => {
 
         {/* Body Metrics */}
         <div className="p-6 glass-card rounded-2xl flex flex-col justify-between">
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Weight size={18} className="text-blue-400" /> Body Metrics
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+            <Weight size={18} className="text-blue-500" /> Body Metrics
           </h2>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3.5 bg-slate-800/40 rounded-xl border border-slate-700/10">
-              <span className="text-sm text-slate-400">Recorded Weight</span>
-              <span className="text-sm font-bold text-white">{user.weight} kg</span>
+            <div className="flex items-center justify-between p-3.5 bg-slate-100/40 dark:bg-slate-800/40 rounded-xl border border-slate-250/20 dark:border-slate-700/10">
+              <span className="text-sm text-slate-500 dark:text-slate-400">Recorded Weight</span>
+              <span className="text-sm font-bold text-slate-800 dark:text-white">{user.weight} kg</span>
             </div>
-            <div className="flex items-center justify-between p-3.5 bg-slate-800/40 rounded-xl border border-slate-700/10">
-              <span className="text-sm text-slate-400">Daily Hydration Target</span>
-              <span className="text-sm font-bold text-blue-400">{user.daily_goal} ml / day</span>
+            <div className="flex items-center justify-between p-3.5 bg-slate-100/40 dark:bg-slate-800/40 rounded-xl border border-slate-250/20 dark:border-slate-700/10">
+              <span className="text-sm text-slate-500 dark:text-slate-400">Daily Hydration Target</span>
+              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{user.daily_goal} ml / day</span>
             </div>
-            <div className="flex items-center justify-between p-3.5 bg-slate-800/40 rounded-xl border border-slate-700/10">
-              <span className="text-sm text-slate-400">Waking Schedule</span>
-              <span className="text-sm font-bold text-white">{user.wake_time} - {user.sleep_time}</span>
+            <div className="flex items-center justify-between p-3.5 bg-slate-100/40 dark:bg-slate-800/40 rounded-xl border border-slate-250/20 dark:border-slate-700/10">
+              <span className="text-sm text-slate-500 dark:text-slate-400">Waking Schedule</span>
+              <span className="text-sm font-bold text-slate-800 dark:text-white">{user.wake_time} - {user.sleep_time}</span>
             </div>
-            <div className="flex items-center justify-between p-3.5 bg-slate-800/40 rounded-xl border border-slate-700/10">
-              <span className="text-sm text-slate-400">Current Intake Today</span>
-              <span className="text-sm font-bold text-emerald-400">{todayIntake} ml</span>
+            <div className="flex items-center justify-between p-3.5 bg-slate-100/40 dark:bg-slate-800/40 rounded-xl border border-slate-250/20 dark:border-slate-700/10">
+              <span className="text-sm text-slate-500 dark:text-slate-400">Current Intake Today</span>
+              <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{todayIntake} ml</span>
             </div>
           </div>
         </div>
@@ -180,25 +180,25 @@ export const UserProfile: React.FC = () => {
         {/* Lifetime Reminders */}
         <div className="p-6 glass-card rounded-2xl flex flex-col justify-between border-l-4 border-emerald-500">
           <div>
-            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <ShieldAlert size={18} className="text-emerald-400" /> Lifetime Reminders
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+              <ShieldAlert size={18} className="text-emerald-555" /> Lifetime Reminders
             </h2>
             <div className="grid grid-cols-2 gap-4 mt-2">
-              <div className="bg-slate-800/30 p-3 rounded-xl">
-                <span className="block text-xs font-semibold text-slate-400">Completions</span>
-                <span className="text-2xl font-black text-white">{lifetimeStats.completed}</span>
+              <div className="bg-slate-100/50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-200/40 dark:border-slate-700/20">
+                <span className="block text-xs font-semibold text-slate-500 dark:text-slate-400">Completions</span>
+                <span className="text-2xl font-black text-slate-800 dark:text-white">{lifetimeStats.completed}</span>
               </div>
-              <div className="bg-slate-800/30 p-3 rounded-xl">
-                <span className="block text-xs font-semibold text-slate-400">Skips</span>
-                <span className="text-2xl font-black text-slate-400">{lifetimeStats.skipped}</span>
+              <div className="bg-slate-100/50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-200/40 dark:border-slate-700/20">
+                <span className="block text-xs font-semibold text-slate-500 dark:text-slate-400">Skips</span>
+                <span className="text-2xl font-black text-slate-655 dark:text-slate-400">{lifetimeStats.skipped}</span>
               </div>
-              <div className="bg-slate-800/30 p-3 rounded-xl">
-                <span className="block text-xs font-semibold text-slate-400">Overdues</span>
-                <span className="text-2xl font-black text-red-400">{lifetimeStats.overdue}</span>
+              <div className="bg-slate-100/50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-200/40 dark:border-slate-700/20">
+                <span className="block text-xs font-semibold text-slate-500 dark:text-slate-400">Overdues</span>
+                <span className="text-2xl font-black text-red-600 dark:text-red-400">{lifetimeStats.overdue}</span>
               </div>
-              <div className="bg-slate-800/30 p-3 rounded-xl">
-                <span className="block text-xs font-semibold text-slate-400">Compliance</span>
-                <span className="text-2xl font-black text-emerald-400">{complianceRate}%</span>
+              <div className="bg-slate-100/50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-200/40 dark:border-slate-700/20">
+                <span className="block text-xs font-semibold text-slate-500 dark:text-slate-400">Compliance</span>
+                <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{complianceRate}%</span>
               </div>
             </div>
           </div>
@@ -207,11 +207,11 @@ export const UserProfile: React.FC = () => {
 
       {/* Badges Preview */}
       <div className="p-6 glass-card rounded-2xl">
-        <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <h2 className="text-lg font-bold text-slate-805 dark:text-white mb-4 flex items-center gap-2">
           <Award size={18} className="text-amber-500" /> Unlocked Badges Preview
         </h2>
         {achievements.length === 0 ? (
-          <div className="h-24 flex items-center justify-center text-slate-500 text-xs">
+          <div className="h-24 flex items-center justify-center text-slate-500 text-xs font-medium">
             Start logging your drinks to unlock your first trophy.
           </div>
         ) : (
@@ -222,11 +222,11 @@ export const UserProfile: React.FC = () => {
               return (
                 <div
                   key={badge.id}
-                  className="flex items-center gap-2 px-3 py-2 bg-slate-800 border border-slate-700/50 rounded-xl"
+                  className="flex items-center gap-2 px-3 py-2 bg-slate-100/50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-xl"
                   title={badge.desc}
                 >
                   <span className="text-xl">{badge.icon}</span>
-                  <span className="text-xs font-bold text-white">{badge.name}</span>
+                  <span className="text-xs font-bold text-slate-800 dark:text-white">{badge.name}</span>
                 </div>
               );
             })}
