@@ -30,7 +30,6 @@ const MainAppContent: React.FC = () => {
     togglePause,
     handleDone,
     handleSnooze,
-    handleSkip,
     triggerReminder,
     resetTimer,
     stopSound,
@@ -308,20 +307,12 @@ const MainAppContent: React.FC = () => {
                 I Drank Water (+250 ml)
               </button>
 
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={handleSnooze}
-                  className="py-2.5 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-300 font-bold rounded-xl text-xs cursor-pointer active:scale-98 transition-all"
-                >
-                  Snooze (5 Min)
-                </button>
-                <button
-                  onClick={handleSkip}
-                  className="py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 font-bold rounded-xl text-xs cursor-pointer active:scale-98 transition-all"
-                >
-                  Skip reminder
-                </button>
-              </div>
+              <button
+                onClick={handleSnooze}
+                className="w-full py-2.5 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-300 font-bold rounded-xl text-xs cursor-pointer active:scale-98 transition-all"
+              >
+                Snooze (2 Min)
+              </button>
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { Droplet, Clock, Check, X, ShieldAlert } from "lucide-react";
+import { Droplet, Clock, Check, ShieldAlert } from "lucide-react";
 
 interface ConfettiParticle {
   id: number;
@@ -223,10 +223,6 @@ export const OverlayView: React.FC = () => {
     emit("overlay-snooze");
   };
 
-  const onSkipClick = () => {
-    emit("overlay-skip");
-  };
-
   if (!visible) return null;
 
   return (
@@ -310,13 +306,6 @@ export const OverlayView: React.FC = () => {
                 className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg cursor-pointer active:scale-95 transition-all"
               >
                 <Clock size={14} /> Snooze
-              </button>
-              <button
-                onClick={onSkipClick}
-                className="flex items-center justify-center p-2 bg-slate-850 hover:bg-slate-805 border border-slate-750 text-slate-400 hover:text-slate-300 rounded-lg cursor-pointer active:scale-95 transition-all"
-                title="Skip reminder"
-              >
-                <X size={14} />
               </button>
             </div>
           </motion.div>

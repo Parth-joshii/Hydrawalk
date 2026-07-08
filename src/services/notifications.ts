@@ -238,6 +238,8 @@ export function playReminderSound(
   }
 }
 
+let activeNotifications: any[] = [];
+
 /**
  * Start loop playing of the reminder sound until explicitly stopped
  */
@@ -250,7 +252,7 @@ export function startReminderSoundLoop(
 }
 
 /**
- * Stop loop playing of the reminder sound
+ * Stop loop playing of the reminder sound and dismiss all active OS notifications
  */
 export function stopReminderSoundLoop() {
   try {
@@ -262,6 +264,15 @@ export function stopReminderSoundLoop() {
       clearInterval(alarmIntervalId);
       alarmIntervalId = null;
     }
+    // Dismiss all active OS notifications
+    activeNotifications.forEach((n) => {
+      try {
+        n.close();
+      } catch (err) {
+        // Ignore close errors
+      }
+    });
+    activeNotifications = [];
   } catch (err) {
     console.error("Failed to stop alarm audio:", err);
   }
@@ -308,6 +319,18 @@ export function playSuccessSound(volume: number = 0.5) {
  */
 export async function sendNativeNotification(title: string, body: string) {
   try {
+    // Keep track of web notifications
+    if (typeof window !== "undefined" && "Notification" in window) {
+      let permission = Notification.permission;
+      if (permission === "default") {
+        permission = await Notification.requestPermission();
+      }
+      if (permission === "granted") {
+        const n = new Notification(title, { body, icon: "icons/128x128.png" });
+        activeNotifications.push(n);
+      }
+    }
+
     if (isTauriRuntime()) {
       const {
         isPermissionGranted,
@@ -329,17 +352,6 @@ export async function sendNativeNotification(title: string, body: string) {
         });
       }
       return;
-    }
-
-    if (!("Notification" in window)) return;
-
-    let permission = Notification.permission;
-    if (permission === "default") {
-      permission = await Notification.requestPermission();
-    }
-
-    if (permission === "granted") {
-      new Notification(title, { body });
     }
   } catch (err) {
     console.error("Failed to trigger native notification:", err);
