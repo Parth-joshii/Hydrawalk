@@ -128,6 +128,13 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
 
         const [h, s, l] = rgbToHsl(r, g, b);
 
+        // Check pixel coordinates
+        const pixelIndex = i / 4;
+        const x = pixelIndex % canvas.width;
+        const y = Math.floor(pixelIndex / canvas.width);
+        const xPercent = x / canvas.width;
+        const yPercent = y / canvas.height;
+
         let isHoodie = false;
         if (isFemale) {
           // Girl original green hoodie is Hue between 110 and 175
@@ -136,6 +143,21 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
           // Boy original blue hoodie is Hue between 175 and 235
           // Exclude the pants which are very dark (l < 0.3)
           isHoodie = h >= 175 && h <= 235 && s > 0.15 && l > 0.30 && l < 0.9;
+
+          // ALSO: Cover the crop-top exposed belly/midriff of the boy PNG.
+          // The exposed skin falls in X: 41% to 59%, Y: 52% to 66% and matches peach skin tones.
+          const isBellySkin = 
+            xPercent >= 0.41 && 
+            xPercent <= 0.59 && 
+            yPercent >= 0.52 && 
+            yPercent <= 0.66 && 
+            h >= 10 && h <= 38 && 
+            s >= 0.12 && s <= 0.65 && 
+            l >= 0.50 && l <= 0.95;
+
+          if (isBellySkin) {
+            isHoodie = true;
+          }
         }
 
         if (isHoodie) {
