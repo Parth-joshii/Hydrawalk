@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, Variants } from "framer-motion";
-import { getAvatarUrl } from "../utils/avatar";
+import { AttireCharacter } from "./AttireCharacter";
 
 export type CharacterState =
   | "idle"
@@ -26,7 +26,6 @@ export const Character: React.FC<CharacterProps> = ({
   scale = 1,
   gender = "Female",
 }) => {
-  const characterImage = getAvatarUrl(gender, outfit);
   const width = 150 * scale;
   const height = 200 * scale;
 
@@ -46,154 +45,97 @@ export const Character: React.FC<CharacterProps> = ({
     },
     drinking: {
       y: [0, -2, 0],
-      transition: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
-    },
-    happy: {
-      y: [0, -18, 0],
-      transition: { repeat: Infinity, duration: 0.5, ease: "easeInOut" },
-    },
-    sleeping: {
-      y: [0, -1, 0],
-      rotate: [0, 2, 0],
-      transition: { repeat: Infinity, duration: 4, ease: "easeInOut" },
-    },
-    thinking: {
-      y: [0, -2, 0],
-      transition: { repeat: Infinity, duration: 2, ease: "easeInOut" },
-    },
-    sad: {
-      y: [0, 3, 0],
-      transition: { repeat: Infinity, duration: 3, ease: "easeInOut" },
+      transition: { repeat: Infinity, duration: 1.2, ease: "easeInOut" },
     },
     smiling: {
       y: [0, -3, 0],
-      transition: { repeat: Infinity, duration: 2, ease: "easeInOut" },
+      transition: { repeat: Infinity, duration: 2.0, ease: "easeInOut" },
+    },
+    sad: {
+      y: [0, 1, 0],
+      transition: { repeat: Infinity, duration: 3.0, ease: "easeInOut" },
+    },
+    happy: {
+      y: [0, -8, 0],
+      transition: { repeat: Infinity, duration: 0.6, ease: "easeInOut" },
+    },
+    sleeping: {
+      y: [0, 2, 0],
+      transition: { repeat: Infinity, duration: 4.0, ease: "easeInOut" },
+    },
+    thinking: {
+      y: [0, -2, 0],
+      transition: { repeat: Infinity, duration: 2.5, ease: "easeInOut" },
     },
   };
 
-  // Overlay emoji / expression on top of the image
   const renderOverlay = () => {
-    if (state === "sleeping") {
-      return (
-        <motion.div
-          style={{
-            position: "absolute",
-            right: "5px",
-            top: "5px",
-            color: "#60a5fa",
-            fontWeight: "bold",
-            fontSize: `${14 * scale}px`,
-            pointerEvents: "none",
-          }}
-          animate={{ y: [-4, -22], x: [0, 4], opacity: [0, 1, 0] }}
-          transition={{ repeat: Infinity, duration: 2, ease: "easeOut" }}
-        >
-          Zzz
-        </motion.div>
-      );
-    }
-    if (state === "thinking") {
-      return (
-        <motion.div
-          style={{
-            position: "absolute",
-            right: "8px",
-            top: "10px",
-            color: "#f59e0b",
-            fontSize: `${20 * scale}px`,
-            fontWeight: "bold",
-            pointerEvents: "none",
-          }}
-          animate={{ scale: [0.8, 1.2, 0.8], rotate: [-5, 5, -5] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-        >
-          ?
-        </motion.div>
-      );
-    }
-    if (state === "happy") {
-      return (
-        <div
-          style={{
-            position: "absolute",
-            top: "5px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            gap: "14px",
-            pointerEvents: "none",
-          }}
-        >
-          <motion.span
-            animate={{ scale: [1, 1.5, 1], rotate: [0, 15, 0] }}
-            transition={{ repeat: Infinity, duration: 0.6 }}
-            style={{ fontSize: `${14 * scale}px` }}
+    switch (state) {
+      case "sleeping":
+        return (
+          <motion.div
+            style={{
+              position: "absolute",
+              top: `${15 * scale}px`,
+              right: `${20 * scale}px`,
+              color: "#a87ffb",
+              fontWeight: "bold",
+              fontSize: `${14 * scale}px`,
+              zIndex: 10,
+            }}
+            animate={{
+              y: [0, -10, 0],
+              opacity: [0, 1, 0],
+              scale: [0.8, 1.2, 0.8],
+            }}
+            transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
           >
-            ⭐
-          </motion.span>
-          <motion.span
-            animate={{ scale: [1.2, 0.8, 1.2], rotate: [0, -15, 0] }}
-            transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }}
-            style={{ fontSize: `${14 * scale}px` }}
+            Zzz...
+          </motion.div>
+        );
+      case "thinking":
+        return (
+          <motion.div
+            style={{
+              position: "absolute",
+              top: `${10 * scale}px`,
+              left: `${15 * scale}px`,
+              color: "#60a5fa",
+              fontWeight: "bold",
+              fontSize: `${20 * scale}px`,
+              zIndex: 10,
+            }}
+            animate={{
+              scale: [1, 1.2, 1],
+              rotate: [0, 10, -10, 0],
+            }}
+            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+          >
+            ?
+          </motion.div>
+        );
+      case "happy":
+        return (
+          <motion.div
+            style={{
+              position: "absolute",
+              top: `${5 * scale}px`,
+              color: "#f472b6",
+              fontSize: `${12 * scale}px`,
+              zIndex: 10,
+            }}
+            animate={{
+              y: [10, -15],
+              opacity: [0, 1, 0],
+            }}
+            transition={{ repeat: Infinity, duration: 1.2 }}
           >
             ✨
-          </motion.span>
-        </div>
-      );
+          </motion.div>
+        );
+      default:
+        return null;
     }
-    if (state === "sad") {
-      return (
-        <motion.div
-          style={{
-            position: "absolute",
-            top: "30%",
-            left: "30%",
-            color: "#60a5fa",
-            fontSize: `${12 * scale}px`,
-            pointerEvents: "none",
-          }}
-          animate={{ y: [0, 10, 0], opacity: [0, 1, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-        >
-          💧
-        </motion.div>
-      );
-    }
-    if (state === "drinking") {
-      return (
-        <motion.div
-          style={{
-            position: "absolute",
-            bottom: "30%",
-            right: "5px",
-            fontSize: `${16 * scale}px`,
-            pointerEvents: "none",
-          }}
-          animate={{ rotate: [-10, 10, -10], y: [0, -2, 0] }}
-          transition={{ repeat: Infinity, duration: 1 }}
-        >
-          🧋
-        </motion.div>
-      );
-    }
-    if (state === "waving") {
-      return (
-        <motion.div
-          style={{
-            position: "absolute",
-            top: "25%",
-            right: "-5px",
-            fontSize: `${18 * scale}px`,
-            pointerEvents: "none",
-          }}
-          animate={{ rotate: [-20, 20, -20] }}
-          transition={{ repeat: Infinity, duration: 0.5 }}
-        >
-          👋
-        </motion.div>
-      );
-    }
-    return null;
   };
 
   return (
@@ -221,6 +163,9 @@ export const Character: React.FC<CharacterProps> = ({
           alignItems: "flex-end",
           justifyContent: "center",
           position: "relative",
+          transform: state === "sleeping" ? "rotate(5deg)" : "none",
+          transition: "transform 0.5s ease",
+          filter: state === "sad" ? "grayscale(0.4) brightness(0.85)" : "none",
         }}
       >
         {/* Walking leg shadow flicker */}
@@ -242,22 +187,10 @@ export const Character: React.FC<CharacterProps> = ({
           />
         )}
 
-        <img
-          src={characterImage}
-          alt="HydraWalk Character"
-          draggable={false}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            objectPosition: "bottom",
-            userSelect: "none",
-            // Slight tilt when sleeping
-            transform: state === "sleeping" ? "rotate(5deg)" : "none",
-            transition: "transform 0.5s ease",
-            // Mirror/flip for walking direction
-            filter: state === "sad" ? "grayscale(0.4) brightness(0.85)" : "none",
-          }}
+        <AttireCharacter
+          gender={gender}
+          outfit={outfit}
+          scale={scale}
         />
       </motion.div>
     </div>
