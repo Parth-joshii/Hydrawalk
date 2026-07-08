@@ -40,34 +40,41 @@ export const ChromaKeyVideo: React.FC<ChromaKeyVideoProps> = ({
           const data = frame.data;
 
           if (!hasBgColors && data.length > 0) {
-            // First checkerboard color at (0, 0)
-            bgR1 = data[0];
-            bgG1 = data[1];
-            bgB1 = data[2];
+            const r0 = data[0];
+            const g0 = data[1];
+            const b0 = data[2];
 
-            // Scan the first row of pixels to locate the second checkerboard color
-            bgR2 = bgR1;
-            bgG2 = bgG1;
-            bgB2 = bgB1;
-            for (let x = 1; x < 60; x++) {
-              const idx = x * 4;
-              const r = data[idx];
-              const g = data[idx + 1];
-              const b = data[idx + 2];
-              
-              const dist = Math.sqrt(
-                (r - bgR1) ** 2 +
-                (g - bgG1) ** 2 +
-                (b - bgB1) ** 2
-              );
-              if (dist > 15) { // found second color of transparency grid
-                bgR2 = r;
-                bgG2 = g;
-                bgB2 = b;
-                break;
+            // Only sample if the video has loaded actual colored pixels (not just pure black 0,0,0 loading frame)
+            if (r0 > 5 || g0 > 5 || b0 > 5) {
+              // First checkerboard color at (0, 0)
+              bgR1 = r0;
+              bgG1 = g0;
+              bgB1 = b0;
+
+              // Scan the first row of pixels to locate the second checkerboard color
+              bgR2 = bgR1;
+              bgG2 = bgG1;
+              bgB2 = bgB1;
+              for (let x = 1; x < 60; x++) {
+                const idx = x * 4;
+                const r = data[idx];
+                const g = data[idx + 1];
+                const b = data[idx + 2];
+                
+                const dist = Math.sqrt(
+                  (r - bgR1) ** 2 +
+                  (g - bgG1) ** 2 +
+                  (b - bgB1) ** 2
+                );
+                if (dist > 15) { // found second color of transparency grid
+                  bgR2 = r;
+                  bgG2 = g;
+                  bgB2 = b;
+                  break;
+                }
               }
+              hasBgColors = true;
             }
-            hasBgColors = true;
           }
 
           // Key out background checkerboard pixels
@@ -126,7 +133,13 @@ export const ChromaKeyVideo: React.FC<ChromaKeyVideoProps> = ({
         loop
         muted
         playsInline
-        style={{ display: "none" }}
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
       />
       <canvas
         ref={canvasRef}
