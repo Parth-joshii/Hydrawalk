@@ -149,6 +149,17 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
 
         if (a === 0) continue;
 
+        // Sniff pixel coordinates
+        const pixelIdx = i / 4;
+        const pxY = pixelIdx / canvas.width;
+
+        // Chroma-key out the solid white JPEG background
+        // Preserve white shoes located at the bottom (Y > 78%)
+        if (r > 248 && g > 248 && b > 248 && pxY < canvas.height * 0.78) {
+          data[i + 3] = 0; // Set transparency to 0
+          continue;
+        }
+
         const [h, s, l] = rgbToHsl(r, g, b);
 
         let isHoodie = false;
