@@ -198,8 +198,8 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
       }
 
       // 2. Define Precise Scaled Facial Coordinates (based on 1024x1024 dimensions)
-      const eyeY = isFemale ? canvas.height * 0.35 : canvas.height * 0.345;
-      const headY = isFemale ? canvas.height * 0.22 : canvas.height * 0.23;
+      const eyeY = isFemale ? canvas.height * 0.255 : canvas.height * 0.255;
+      const headY = isFemale ? canvas.height * 0.08 : canvas.height * 0.08;
       const scaleFactor = canvas.width / 500; // dynamic scale factor based on natural width
 
       // 3. Render Sunglasses / Glasses overlay options
