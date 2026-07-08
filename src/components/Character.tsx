@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, Variants } from "framer-motion";
+import { AttireCharacter } from "./AttireCharacter";
 
 export type CharacterState =
   | "idle"
@@ -25,27 +26,6 @@ export const Character: React.FC<CharacterProps> = ({
   scale = 1,
   gender = "Female",
 }) => {
-  // Pick image based on gender and outfit choice
-  let characterImage = "/character-girl.png?v=2";
-  const lowerGender = (gender || "Female").toLowerCase();
-  if (lowerGender === "male" || lowerGender === "boy") {
-    if (outfit === "hoodie_pink" || outfit.includes("pink")) {
-      characterImage = "/character-boy-pink.png?v=2";
-    } else if (outfit === "hoodie_dark" || outfit.includes("dark")) {
-      characterImage = "/character-boy-dark.png?v=2";
-    } else {
-      characterImage = "/character-boy-blue.png?v=2";
-    }
-  } else {
-    // Female / Other
-    if (outfit === "hoodie_pink" || outfit.includes("pink")) {
-      characterImage = "/character-girl-pink.png?v=2";
-    } else if (outfit === "hoodie_dark" || outfit.includes("dark")) {
-      characterImage = "/character-girl-dark.png?v=2";
-    } else {
-      characterImage = "/character-girl.png?v=2";
-    }
-  }
   const width = 150 * scale;
   const height = 200 * scale;
 
@@ -207,17 +187,10 @@ export const Character: React.FC<CharacterProps> = ({
           />
         )}
 
-        <img
-          src={characterImage}
-          alt="HydraWalk Character"
-          draggable={false}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            objectPosition: "bottom",
-            userSelect: "none",
-          }}
+        <AttireCharacter
+          gender={gender}
+          outfit={outfit}
+          scale={scale}
         />
       </motion.div>
     </div>

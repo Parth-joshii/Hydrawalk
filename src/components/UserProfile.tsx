@@ -4,19 +4,7 @@ import { getReminderLogsForRange } from "../services/db";
 import { ShieldAlert, Award, Calendar, Weight, Clock, Pencil, X, Save } from "lucide-react";
 import { BADGES, Badge } from "./AchievementsList";
 
-// Character avatars — automatically switch based on gender
-const AVATAR_BY_GENDER = (gender: string, outfit: string = "hoodie_blue") => {
-  const lowerGender = (gender || "Female").toLowerCase();
-  if (lowerGender === "male" || lowerGender === "boy") {
-    if (outfit === "hoodie_pink" || outfit.includes("pink")) return "/character-boy-pink.png?v=2";
-    if (outfit === "hoodie_dark" || outfit.includes("dark")) return "/character-boy-dark.png?v=2";
-    return "/character-boy-blue.png?v=2";
-  } else {
-    if (outfit === "hoodie_pink" || outfit.includes("pink")) return "/character-girl-pink.png?v=2";
-    if (outfit === "hoodie_dark" || outfit.includes("dark")) return "/character-girl-dark.png?v=2";
-    return "/character-girl.png?v=2";
-  }
-};
+import { AttireCharacter } from "./AttireCharacter";
 
 export const UserProfile: React.FC = () => {
   const { user, todayIntake, achievements, updateProfile } = useApp();
@@ -111,15 +99,8 @@ export const UserProfile: React.FC = () => {
 
         {/* Anime Girl Avatar */}
         <div className="relative flex-shrink-0">
-          <div className="w-28 h-28 rounded-full border-2 border-indigo-500/40 shadow-xl overflow-hidden bg-gradient-to-br from-indigo-900/40 to-purple-900/30 flex items-end justify-center">
-            <img
-              src={AVATAR_BY_GENDER(user.gender, user.character_outfit)}
-              alt="Profile Character"
-              className="w-full h-full object-cover object-top scale-110"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
-            />
+          <div className="w-28 h-28 rounded-full border-2 border-indigo-500/40 shadow-xl overflow-hidden bg-gradient-to-br from-indigo-900/40 to-purple-900/30 flex items-end justify-center pt-2">
+            <AttireCharacter gender={user.gender} outfit={user.character_outfit} scale={0.7} />
           </div>
           {/* Online dot */}
           <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-slate-900 shadow" />
@@ -259,8 +240,8 @@ export const UserProfile: React.FC = () => {
 
             {/* Avatar preview in modal */}
             <div className="flex justify-center mb-5">
-              <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-indigo-500/40 bg-gradient-to-br from-indigo-900/40 to-purple-900/30">
-                <img src={AVATAR_BY_GENDER(editGender, user.character_outfit)} alt="Avatar" className="w-full h-full object-cover object-top scale-110" />
+              <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-indigo-500/40 bg-gradient-to-br from-indigo-900/40 to-purple-900/30 flex items-end justify-center pt-2">
+                <AttireCharacter gender={editGender} outfit={user.character_outfit} scale={0.5} />
               </div>
             </div>
 

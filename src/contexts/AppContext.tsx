@@ -147,7 +147,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateProfile = async (profile: Omit<UserProfile, "id">) => {
     setIsLoading(true);
     try {
-      await saveUserProfile(profile);
+      let finalOutfit = profile.character_outfit;
+      const isBoy = (profile.gender || "Female").toLowerCase() === "male" || (profile.gender || "Female").toLowerCase() === "boy";
+      if (isBoy && finalOutfit.includes("pink")) {
+        finalOutfit = "hoodie_blue";
+      }
+      await saveUserProfile({ ...profile, character_outfit: finalOutfit });
       await refreshData();
     } finally {
       setIsLoading(false);
@@ -169,7 +174,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const setOutfit = async (outfit: string) => {
     if (!user) return;
-    const newProfile = { ...user, character_outfit: outfit };
+    let finalOutfit = outfit;
+    const isBoy = (user.gender || "Female").toLowerCase() === "male" || (user.gender || "Female").toLowerCase() === "boy";
+    if (isBoy && outfit.includes("pink")) {
+      finalOutfit = "hoodie_blue";
+    }
+    const newProfile = { ...user, character_outfit: finalOutfit };
     await saveUserProfile(newProfile);
     setUser(newProfile);
   };

@@ -432,28 +432,44 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
               <label className="block text-xs font-semibold text-slate-400 uppercase">
                 Choose Hoodie Color
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                 {[
-                  { id: "hoodie_blue", label: "Sky Blue", color: "bg-blue-400" },
-                  { id: "hoodie_pink", label: "Sweet Pink", color: "bg-pink-400" },
+                  { id: "hoodie_blue", label: "Sky Blue", color: "bg-blue-500" },
+                  { id: "hoodie_green", label: "Emerald Green", color: "bg-emerald-500" },
+                  { id: "hoodie_yellow", label: "Sunny Yellow", color: "bg-yellow-500" },
                   { id: "hoodie_dark", label: "Sleek Dark", color: "bg-slate-700" },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setOutfit(item.id)}
-                    className={`p-3 rounded-xl border flex flex-col items-center gap-2 cursor-pointer transition-all ${
-                      user.character_outfit === item.id || 
-                      (item.id === "hoodie_blue" && (!user.character_outfit || user.character_outfit.includes("blue"))) ||
-                      (item.id === "hoodie_pink" && user.character_outfit.includes("pink")) ||
-                      (item.id === "hoodie_dark" && user.character_outfit.includes("dark"))
-                        ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
-                        : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
-                    }`}
-                  >
-                    <div className={`w-8 h-8 rounded-full ${item.color} shadow-inner`} />
-                    <span className="text-[10px] font-bold text-slate-700 dark:text-white">{item.label}</span>
-                  </button>
-                ))}
+                  { id: "hoodie_red", label: "Crimson Red", color: "bg-red-500" },
+                  { id: "hoodie_purple", label: "Royal Purple", color: "bg-purple-500" },
+                  { id: "hoodie_orange", label: "Bright Orange", color: "bg-orange-500" },
+                  { id: "hoodie_teal", label: "Teal", color: "bg-teal-500" },
+                  { id: "hoodie_indigo", label: "Indigo", color: "bg-indigo-500" },
+                  { id: "hoodie_pink", label: "Sweet Pink", color: "bg-pink-400" },
+                ]
+                  .filter((item) => {
+                    const isBoy = (user.gender || "Female").toLowerCase() === "male" || (user.gender || "Female").toLowerCase() === "boy";
+                    return !(isBoy && item.id === "hoodie_pink");
+                  })
+                  .map((item) => {
+                    const isSelected = user.character_outfit === item.id || 
+                      (item.id === "hoodie_blue" && (!user.character_outfit || (!user.character_outfit.includes("pink") && !user.character_outfit.includes("dark") && !user.character_outfit.includes("green") && !user.character_outfit.includes("yellow") && !user.character_outfit.includes("red") && !user.character_outfit.includes("purple") && !user.character_outfit.includes("orange") && !user.character_outfit.includes("teal") && !user.character_outfit.includes("indigo"))));
+                    
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setOutfit(item.id)}
+                        className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+                          isSelected
+                            ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
+                            : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-full ${item.color} shadow-inner`} />
+                        <span className="text-[10px] font-bold text-slate-700 dark:text-white truncate w-full text-center">
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  })}
               </div>
             </div>
           </div>
