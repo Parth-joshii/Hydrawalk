@@ -60,6 +60,23 @@ function hexToHsl(hex: string): [number, number, number] {
   return rgbToHsl(r, g, b);
 }
 
+// Darken/lighten hex colors for realistic vector shadows
+function adjustBrightness(hex: string, percent: number): string {
+  const cleanHex = hex.replace("#", "");
+  let r = parseInt(cleanHex.substring(0, 2), 16);
+  let g = parseInt(cleanHex.substring(2, 4), 16);
+  let b = parseInt(cleanHex.substring(4, 6), 16);
+
+  r = Math.max(0, Math.min(255, r + (r * percent) / 100));
+  g = Math.max(0, Math.min(255, g + (g * percent) / 100));
+  b = Math.max(0, Math.min(255, b + (b * percent) / 100));
+
+  const rs = Math.round(r).toString(16).padStart(2, "0");
+  const gs = Math.round(g).toString(16).padStart(2, "0");
+  const bs = Math.round(b).toString(16).padStart(2, "0");
+  return `#${rs}${gs}${bs}`;
+}
+
 export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
   gender,
   outfit = "blue",
@@ -128,13 +145,6 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
 
         const [h, s, l] = rgbToHsl(r, g, b);
 
-        // Check pixel coordinates
-        const pixelIndex = i / 4;
-        const x = pixelIndex % canvas.width;
-        const y = Math.floor(pixelIndex / canvas.width);
-        const xPercent = x / canvas.width;
-        const yPercent = y / canvas.height;
-
         let isHoodie = false;
         if (isFemale) {
           // Girl original green hoodie is Hue between 110 and 175
@@ -143,21 +153,6 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
           // Boy original blue hoodie is Hue between 175 and 235
           // Exclude the pants which are very dark (l < 0.3)
           isHoodie = h >= 175 && h <= 235 && s > 0.15 && l > 0.30 && l < 0.9;
-
-          // ALSO: Cover the crop-top exposed belly/midriff of the boy PNG.
-          // The exposed skin falls in X: 41% to 59%, Y: 52% to 66% and matches peach skin tones.
-          const isBellySkin = 
-            xPercent >= 0.41 && 
-            xPercent <= 0.59 && 
-            yPercent >= 0.52 && 
-            yPercent <= 0.66 && 
-            h >= 10 && h <= 38 && 
-            s >= 0.12 && s <= 0.65 && 
-            l >= 0.50 && l <= 0.95;
-
-          if (isBellySkin) {
-            isHoodie = true;
-          }
         }
 
         if (isHoodie) {
@@ -169,6 +164,39 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
       }
 
       ctx.putImageData(imgData, 0, 0);
+
+      // Apply solid gradient cloth coverage to cover the boy crop-top midriff belly
+      // and make the hoodie look like a premium full-length boy's hoodie!
+      if (!isFemale) {
+        const startX = canvas.width * 0.408;
+        const endX = canvas.width * 0.592;
+        const startY = canvas.height * 0.52;
+        const endY = canvas.height * 0.665;
+
+        // Make left side highlight and right side shaded to match original drawing light source
+        const grad = ctx.createLinearGradient(startX, startY, endX, startY);
+        grad.addColorStop(0, targetHex);
+        grad.addColorStop(0.3, targetHex);
+        grad.addColorStop(1, adjustBrightness(targetHex, -18));
+
+        ctx.fillStyle = grad;
+
+        ctx.beginPath();
+        ctx.moveTo(startX, startY - 1);
+        ctx.lineTo(endX, startY - 1);
+        ctx.lineTo(endX - 3, endY);
+        ctx.lineTo(startX + 3, endY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Draw a slight dark shadow bottom-hem outline to add crease realism
+        ctx.strokeStyle = adjustBrightness(targetHex, -35);
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(startX + 3, endY - 1);
+        ctx.lineTo(endX - 3, endY - 1);
+        ctx.stroke();
+      }
     };
   }, [baseSrc, targetHex, isFemale]);
 
