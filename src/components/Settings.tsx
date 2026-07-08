@@ -23,8 +23,49 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
   const [customInterval, setCustomInterval] = useState<number | "">(
     user && ![30, 45, 60, 90, 120].includes(user.reminder_interval) ? user.reminder_interval : ""
   );
+  const [customizerTab, setCustomizerTab] = useState<"hoodie" | "hair" | "hairColor" | "accessory">("hoodie");
 
   if (!user) return null;
+
+  // Parser logic to show currently selected trait states
+  let colorId = "blue";
+  let hairStyleIndex = 0;
+  let hairColorId = "black";
+  let accessoryId = "none";
+
+  if (user.character_outfit && user.character_outfit.includes("_")) {
+    const parts = user.character_outfit.split("_");
+    if (parts.length === 4) {
+      colorId = parts[0];
+      hairStyleIndex = parseInt(parts[1], 10) || 0;
+      hairColorId = parts[2];
+      accessoryId = parts[3];
+    } else if (parts.length === 2) {
+      hairStyleIndex = parseInt(parts[0], 10) || 0;
+      colorId = parts[1];
+    } else {
+      colorId = parts[1] || "blue";
+    }
+  } else {
+    if (user.character_outfit) {
+      colorId = user.character_outfit.replace("hoodie_", "");
+    }
+  }
+
+  const setTrait = async (key: "color" | "hairStyle" | "hairColor" | "accessory", value: string | number) => {
+    let newColor = colorId;
+    let newHairStyle = hairStyleIndex;
+    let newHairColor = hairColorId;
+    let newAccessory = accessoryId;
+
+    if (key === "color") newColor = value as string;
+    if (key === "hairStyle") newHairStyle = value as number;
+    if (key === "hairColor") newHairColor = value as string;
+    if (key === "accessory") newAccessory = value as string;
+
+    const encodedOutfit = `${newColor}_${newHairStyle}_${newHairColor}_${newAccessory}`;
+    await setOutfit(encodedOutfit);
+  };
 
   const handleToggle = async (name: keyof typeof user) => {
     const nextValue = !user[name];
@@ -417,7 +458,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
             🚶‍♀️ Profile Character Visuals
           </h2>
           <p className="text-xs text-slate-400">
-            Pick a character outfit that updates the desktop overlay and profile visuals.
+            Customize your avatar hair, color, outfits, and accessories just like on Snapchat.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-8 pt-2">
@@ -427,49 +468,151 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
               <Character state="idle" outfit={user.character_outfit} scale={1.1} gender={user.gender} />
             </div>
 
-            {/* Customizer */}
+            {/* Customizer Tabs */}
             <div className="flex-1 space-y-4 w-full">
-              <label className="block text-xs font-semibold text-slate-400 uppercase">
-                Choose Hoodie Color
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              {/* Tabs Header */}
+              <div className="flex border-b border-slate-200 dark:border-slate-800/80 gap-1 overflow-x-auto pb-[2px]">
                 {[
-                  { id: "hoodie_blue", label: "Sky Blue", color: "bg-blue-500" },
-                  { id: "hoodie_green", label: "Emerald Green", color: "bg-emerald-500" },
-                  { id: "hoodie_yellow", label: "Sunny Yellow", color: "bg-yellow-500" },
-                  { id: "hoodie_dark", label: "Sleek Dark", color: "bg-slate-700" },
-                  { id: "hoodie_red", label: "Crimson Red", color: "bg-red-500" },
-                  { id: "hoodie_purple", label: "Royal Purple", color: "bg-purple-500" },
-                  { id: "hoodie_orange", label: "Bright Orange", color: "bg-orange-500" },
-                  { id: "hoodie_teal", label: "Teal", color: "bg-teal-500" },
-                  { id: "hoodie_indigo", label: "Indigo", color: "bg-indigo-500" },
-                  { id: "hoodie_pink", label: "Sweet Pink", color: "bg-pink-400" },
-                ]
-                  .filter((item) => {
-                    const isBoy = (user.gender || "Female").toLowerCase() === "male" || (user.gender || "Female").toLowerCase() === "boy";
-                    return !(isBoy && item.id === "hoodie_pink");
-                  })
-                  .map((item) => {
-                    const isSelected = user.character_outfit === item.id || 
-                      (item.id === "hoodie_blue" && (!user.character_outfit || (!user.character_outfit.includes("pink") && !user.character_outfit.includes("dark") && !user.character_outfit.includes("green") && !user.character_outfit.includes("yellow") && !user.character_outfit.includes("red") && !user.character_outfit.includes("purple") && !user.character_outfit.includes("orange") && !user.character_outfit.includes("teal") && !user.character_outfit.includes("indigo"))));
-                    
-                    return (
+                  { id: "hoodie", label: "👕 Hoodie" },
+                  { id: "hair", label: "💇 Hair Style" },
+                  { id: "hairColor", label: "🎨 Hair Color" },
+                  { id: "accessory", label: "🕶️ Accessories" },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setCustomizerTab(tab.id as any)}
+                    className={`px-3.5 py-2 text-xs font-bold transition-all cursor-pointer border-b-2 -mb-[2px] whitespace-nowrap ${
+                      customizerTab === tab.id
+                        ? "border-blue-500 text-blue-500 dark:text-blue-400"
+                        : "border-transparent text-slate-450 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Tab Body */}
+              <div className="pt-2">
+                {customizerTab === "hoodie" && (
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    {[
+                      { id: "blue", label: "Sky Blue", color: "bg-blue-500" },
+                      { id: "green", label: "Emerald Green", color: "bg-emerald-500" },
+                      { id: "yellow", label: "Sunny Yellow", color: "bg-yellow-500" },
+                      { id: "dark", label: "Sleek Dark", color: "bg-slate-700" },
+                      { id: "red", label: "Crimson Red", color: "bg-red-500" },
+                      { id: "purple", label: "Royal Purple", color: "bg-purple-500" },
+                      { id: "orange", label: "Bright Orange", color: "bg-orange-500" },
+                      { id: "teal", label: "Teal", color: "bg-teal-500" },
+                      { id: "indigo", label: "Indigo", color: "bg-indigo-500" },
+                      { id: "pink", label: "Sweet Pink", color: "bg-pink-400" },
+                    ]
+                      .filter((item) => {
+                        const isBoy = (user.gender || "Female").toLowerCase() === "male" || (user.gender || "Female").toLowerCase() === "boy";
+                        return !(isBoy && item.id === "pink");
+                      })
+                      .map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => setTrait("color", item.id)}
+                          className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+                            colorId === item.id
+                              ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md shadow-blue-500/5"
+                              : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
+                          }`}
+                        >
+                          <div className={`w-8 h-8 rounded-full ${item.color} shadow-inner`} />
+                          <span className="text-[10px] font-bold text-slate-750 dark:text-white truncate w-full text-center">
+                            {item.label}
+                          </span>
+                        </button>
+                      ))}
+                  </div>
+                )}
+
+                {customizerTab === "hair" && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {(user.gender.toLowerCase() === "male" || user.gender.toLowerCase() === "boy"
+                      ? [
+                          { index: 0, label: "Short Crop" },
+                          { index: 1, label: "Spiky Active" },
+                          { index: 2, label: "Curly Top" },
+                          { index: 3, label: "Retro Shag" },
+                          { index: 4, label: "Side Parted" },
+                          { index: 5, label: "Clean Crop" },
+                        ]
+                      : [
+                          { index: 0, label: "Long Straight" },
+                          { index: 1, label: "Modern Bob" },
+                          { index: 2, label: "High Ponytail" },
+                          { index: 3, label: "Curly Locks" },
+                          { index: 4, label: "Updo Bun" },
+                          { index: 5, label: "Braided Tails" },
+                        ]
+                    ).map((hair) => (
                       <button
-                        key={item.id}
-                        onClick={() => setOutfit(item.id)}
-                        className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
-                          isSelected
+                        key={hair.index}
+                        onClick={() => setTrait("hairStyle", hair.index)}
+                        className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                          hairStyleIndex === hair.index
                             ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
                             : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
                         }`}
                       >
-                        <div className={`w-8 h-8 rounded-full ${item.color} shadow-inner`} />
-                        <span className="text-[10px] font-bold text-slate-700 dark:text-white truncate w-full text-center">
-                          {item.label}
-                        </span>
+                        <span className="text-xs font-bold text-slate-800 dark:text-white">{hair.label}</span>
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
+                )}
+
+                {customizerTab === "hairColor" && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { id: "black", label: "Black", color: "bg-slate-900" },
+                      { id: "brown", label: "Brown", color: "bg-amber-950" },
+                      { id: "blonde", label: "Blonde", color: "bg-yellow-400" },
+                      { id: "red", label: "Red/Ginger", color: "bg-red-700" },
+                    ].map((hColor) => (
+                      <button
+                        key={hColor.id}
+                        onClick={() => setTrait("hairColor", hColor.id)}
+                        className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+                          hairColorId === hColor.id
+                            ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
+                            : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-full ${hColor.color} shadow-inner`} />
+                        <span className="text-[10px] font-bold text-slate-700 dark:text-white">{hColor.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {customizerTab === "accessory" && (
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    {[
+                      { id: "none", label: "None" },
+                      { id: "glasses", label: "Glasses" },
+                      { id: "headphones", label: "Headphones" },
+                      { id: "cap", label: "Baseball Cap" },
+                      { id: "beanie", label: "Beanie" },
+                    ].map((acc) => (
+                      <button
+                        key={acc.id}
+                        onClick={() => setTrait("accessory", acc.id)}
+                        className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                          accessoryId === acc.id
+                            ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
+                            : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
+                        }`}
+                      >
+                        <span className="text-xs font-bold text-slate-850 dark:text-white">{acc.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
