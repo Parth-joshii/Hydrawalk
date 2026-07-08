@@ -151,12 +151,15 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
 
         // Sniff pixel coordinates
         const pixelIdx = i / 4;
-        const pxY = pixelIdx / canvas.width;
+        const pxX = pixelIdx % canvas.width;
+        const pxY = Math.floor(pixelIdx / canvas.width);
 
-        // Chroma-key out the solid white JPEG background
-        // Preserve white shoes located at the bottom (Y > 78%)
-        if (r > 248 && g > 248 && b > 248 && pxY < canvas.height * 0.78) {
-          data[i + 3] = 0; // Set transparency to 0
+        // Keep shoes white (located at the bottom Y > 78% and centered X between 40% and 60%)
+        const isShoeArea = pxY >= canvas.height * 0.78 && pxX >= canvas.width * 0.40 && pxX <= canvas.width * 0.60;
+
+        // Chroma-key out the solid white JPEG background everywhere else
+        if (r > 248 && g > 248 && b > 248 && !isShoeArea) {
+          data[i + 3] = 0; // Transparent
           continue;
         }
 
@@ -419,7 +422,7 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
       className={className}
       style={{
         width: `${150 * scale}px`,
-        height: `${200 * scale}px`,
+        height: `${150 * scale}px`, // 1:1 perfect square aspect ratio
         objectFit: "contain",
         userSelect: "none"
       }}
