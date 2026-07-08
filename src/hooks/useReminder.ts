@@ -363,7 +363,6 @@ export const useReminder = () => {
     let unlistenDrinkNow: () => void;
     let unlistenPause: () => void;
     let unlistenResume: () => void;
-    let unlistenOverlayDone: () => void;
     let unlistenOverlaySnooze: () => void;
     let unlistenOverlaySkip: () => void;
 
@@ -388,11 +387,6 @@ export const useReminder = () => {
         void resumeCountdown();
       });
 
-      // Listen for actions sent from overlay window to main window
-      unlistenOverlayDone = await listen<{ amount: number }>("overlay-done", (event) => {
-        handleDone(event.payload.amount);
-      });
-
       unlistenOverlaySnooze = await listen("overlay-snooze", () => {
         handleSnooze();
       });
@@ -409,7 +403,6 @@ export const useReminder = () => {
       if (unlistenDrinkNow) unlistenDrinkNow();
       if (unlistenPause) unlistenPause();
       if (unlistenResume) unlistenResume();
-      if (unlistenOverlayDone) unlistenOverlayDone();
       if (unlistenOverlaySnooze) unlistenOverlaySnooze();
       if (unlistenOverlaySkip) unlistenOverlaySkip();
     };

@@ -11,7 +11,6 @@ import { isTauriRuntime } from "./utils/runtime";
 import { Home, BarChart3, Trophy, User as UserIcon, Settings, Play, Pause, Flame, LogOut } from "lucide-react";
 import { LoginView } from "./components/LoginView";
 import { DrinkingCameraModal } from "./components/DrinkingCameraModal";
-import { ChromaKeyVideo } from "./components/ChromaKeyVideo";
 
 // Lazy-load the desktop overlay to prevent Tauri API crashes in Vercel web environments
 const OverlayView = lazy(() => import("./components/OverlayView").then((m) => ({ default: m.OverlayView })));
@@ -28,10 +27,8 @@ const MainAppContent: React.FC = () => {
     secondsRemaining,
     isPaused,
     overdueCount,
-    activeReminder,
     togglePause,
     handleDone,
-    handleSnooze,
     triggerReminder,
     resetTimer,
     dismissReminder,
@@ -60,6 +57,33 @@ const MainAppContent: React.FC = () => {
       if (unlistenNavigate) unlistenNavigate();
     };
   }, []);
+
+  // Listen to overlay actions to show camera and focus window
+  useEffect(() => {
+    let unlistenOverlayDone: () => void;
+
+    async function setupOverlayListener() {
+      if (!isTauriRuntime()) return;
+      const { listen } = await import("@tauri-apps/api/event");
+      const { getCurrentWindow } = await import("@tauri-apps/api/window");
+
+      unlistenOverlayDone = await listen("overlay-done", () => {
+        dismissReminder();
+        // Bring main window to front
+        const mainWin = getCurrentWindow();
+        mainWin.show().catch(console.error);
+        mainWin.unminimize().catch(console.error);
+        mainWin.setFocus().catch(console.error);
+        // Show camera
+        setShowCamera(true);
+      });
+    }
+
+    setupOverlayListener();
+    return () => {
+      if (unlistenOverlayDone) unlistenOverlayDone();
+    };
+  }, [dismissReminder]);
 
   if (initializationError) {
     return (
@@ -275,54 +299,6 @@ const MainAppContent: React.FC = () => {
           })}
         </nav>
       </div>
-
-      {/* Web-based Reminder Modal Overlay */}
-      {activeReminder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/75 backdrop-blur-md">
-          <div className="w-full max-w-md glass-panel p-8 rounded-3xl relative z-10 shadow-2xl text-center flex flex-col items-center">
-            {/* Soft background glow */}
-            <div className="absolute right-0 top-0 w-48 h-48 bg-blue-500/10 rounded-full filter blur-3xl pointer-events-none" />
-
-            {/* Glowing Drop Header */}
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center text-3xl shadow-lg shadow-indigo-500/25 mb-4 animate-bounce">
-              💧
-            </div>
-
-            <h2 className="text-2xl font-black text-white tracking-tight mb-1">
-              Time to Hydrate, <span className="gemini-text-gradient">{user.name}</span>!
-            </h2>
-            <p className="text-xs text-slate-400 mb-6">
-              Keep your cycle going and stay energized.
-            </p>
-
-            {/* Animated Character Preview */}
-            <div className="w-48 h-48 bg-slate-900/40 border border-slate-800/40 rounded-3xl flex items-center justify-center relative overflow-hidden mb-6">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.08)_0%,transparent_75%)]" />
-              <ChromaKeyVideo width={192} height={192} className="w-full h-full object-contain" />
-            </div>
-
-            {/* Buttons */}
-            <div className="w-full space-y-3">
-              <button
-                onClick={() => {
-                  dismissReminder();
-                  setShowCamera(true);
-                }}
-                className="w-full py-3 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 hover:opacity-90 active:scale-98 text-white font-bold rounded-xl text-xs shadow-lg shadow-indigo-500/20 cursor-pointer transition-all"
-              >
-                I Drank Water (+250 ml)
-              </button>
-
-              <button
-                onClick={handleSnooze}
-                className="w-full py-2.5 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-300 font-bold rounded-xl text-xs cursor-pointer active:scale-98 transition-all"
-              >
-                Snooze (2 Min)
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <DrinkingCameraModal
         isOpen={showCamera}
