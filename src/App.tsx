@@ -11,6 +11,7 @@ import { isTauriRuntime } from "./utils/runtime";
 import { Home, BarChart3, Trophy, User as UserIcon, Settings, Play, Pause, Flame, LogOut } from "lucide-react";
 import { LoginView } from "./components/LoginView";
 import { DrinkingCameraModal } from "./components/DrinkingCameraModal";
+import { ChromaKeyVideo } from "./components/ChromaKeyVideo";
 
 // Lazy-load the desktop overlay to prevent Tauri API crashes in Vercel web environments
 const OverlayView = lazy(() => import("./components/OverlayView").then((m) => ({ default: m.OverlayView })));
@@ -27,6 +28,7 @@ const MainAppContent: React.FC = () => {
     secondsRemaining,
     isPaused,
     overdueCount,
+    activeReminder,
     togglePause,
     handleDone,
     triggerReminder,
@@ -299,6 +301,21 @@ const MainAppContent: React.FC = () => {
           })}
         </nav>
       </div>
+
+      {/* Floating Web-based Video Overlay (Cardless) */}
+      {activeReminder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-[4px] select-none pointer-events-none">
+          <div
+            className="pointer-events-auto cursor-pointer active:scale-95 transition-all"
+            onClick={() => {
+              dismissReminder();
+              setShowCamera(true);
+            }}
+          >
+            <ChromaKeyVideo width={500} height={500} className="w-full h-full object-contain" />
+          </div>
+        </div>
+      )}
 
       <DrinkingCameraModal
         isOpen={showCamera}
