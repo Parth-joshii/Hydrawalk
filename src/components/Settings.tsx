@@ -4,7 +4,6 @@ import { resetAllUserData, exportDatabaseBackup, importDatabaseBackup } from "..
 import { setAutostart } from "../services/autostart";
 import { playReminderSound } from "../services/notifications";
 import { Character } from "./Character";
-import { getAvatarUrl } from "../utils/avatar";
 import {
   Volume2,
   Moon,
@@ -26,20 +25,6 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
   );
 
   if (!user) return null;
-
-  // Parser logic to show currently selected style and color
-  let currentAvatarIndex = 0;
-  let currentColorId = "blue";
-  if (user.character_outfit && user.character_outfit.includes("_")) {
-    const parts = user.character_outfit.split("_");
-    currentAvatarIndex = parseInt(parts[0], 10) || 0;
-    currentColorId = parts[1] || "blue";
-  } else {
-    // Legacy mapping
-    if (user.character_outfit === "hoodie_pink") currentColorId = "pink";
-    else if (user.character_outfit === "hoodie_dark") currentColorId = "dark";
-    else currentColorId = "blue";
-  }
 
   const handleToggle = async (name: keyof typeof user) => {
     const nextValue = !user[name];
@@ -426,14 +411,13 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
           )}
         </div>
 
-        {/* Character Visual Customization */}
         {/* Companion Character Visuals */}
         <div className="p-6 glass-card rounded-2xl space-y-4 md:col-span-2">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
             🚶‍♀️ Companion Character Visuals
           </h2>
           <p className="text-xs text-slate-400">
-            Pick a character avatar style and background color that updates overlay and profile visuals.
+            Pick a character outfit that updates the desktop overlay and profile visuals.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-8 pt-2">
@@ -444,62 +428,32 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
             </div>
 
             {/* Customizer */}
-            <div className="flex-1 space-y-5 w-full">
-              {/* Part 1: Colors */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
-                  1. Choose Background Color
-                </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {[
-                    { id: "blue", label: "Sky Blue", colorClass: "bg-[#3b82f6]" },
-                    { id: "pink", label: "Sweet Pink", colorClass: "bg-[#ec4899]" },
-                    { id: "green", label: "Emerald Green", colorClass: "bg-[#10b981]" },
-                    { id: "yellow", label: "Sunny Amber", colorClass: "bg-[#f59e0b]" },
-                    { id: "dark", label: "Sleek Dark", colorClass: "bg-[#374151]" },
-                  ].map((colorItem) => (
-                    <button
-                      key={colorItem.id}
-                      onClick={() => setOutfit(`${currentAvatarIndex}_${colorItem.id}`)}
-                      className={`w-9 h-9 rounded-full cursor-pointer transition-all flex items-center justify-center border-2 ${
-                        currentColorId === colorItem.id
-                          ? "border-[#1a73e8] scale-110 shadow-md shadow-blue-500/20"
-                          : "border-transparent hover:scale-105"
-                      } ${colorItem.colorClass}`}
-                      title={colorItem.label}
-                    >
-                      {currentColorId === colorItem.id && (
-                        <span className="text-white text-xs font-bold">✓</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Part 2: 15 Styles */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
-                  2. Choose Character Style (15 options)
-                </label>
-                <div className="grid grid-cols-5 gap-2 max-h-48 overflow-y-auto p-1 border border-slate-200/50 dark:border-slate-800/40 rounded-xl bg-slate-50/50 dark:bg-slate-900/30">
-                  {Array.from({ length: 15 }).map((_, index) => {
-                    const previewUrl = getAvatarUrl(user.gender, `${index}_${currentColorId}`);
-                    const isSelected = currentAvatarIndex === index;
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => setOutfit(`${index}_${currentColorId}`)}
-                        className={`aspect-square p-1 rounded-lg border cursor-pointer transition-all flex items-center justify-center overflow-hidden ${
-                          isSelected
-                            ? "border-blue-500 bg-blue-500/5 shadow-inner"
-                            : "border-slate-200/60 dark:border-slate-800/60 bg-white dark:bg-slate-900 hover:border-slate-350 dark:hover:border-slate-700"
-                        }`}
-                      >
-                        <img src={previewUrl} alt={`Style ${index + 1}`} className="w-full h-full object-contain" />
-                      </button>
-                    );
-                  })}
-                </div>
+            <div className="flex-1 space-y-4 w-full">
+              <label className="block text-xs font-semibold text-slate-400 uppercase">
+                Choose Hoodie Color
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { id: "hoodie_blue", label: "Sky Blue", color: "bg-blue-400" },
+                  { id: "hoodie_pink", label: "Sweet Pink", color: "bg-pink-400" },
+                  { id: "hoodie_dark", label: "Sleek Dark", color: "bg-slate-700" },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setOutfit(item.id)}
+                    className={`p-3 rounded-xl border flex flex-col items-center gap-2 cursor-pointer transition-all ${
+                      user.character_outfit === item.id || 
+                      (item.id === "hoodie_blue" && (!user.character_outfit || user.character_outfit.includes("blue"))) ||
+                      (item.id === "hoodie_pink" && user.character_outfit.includes("pink")) ||
+                      (item.id === "hoodie_dark" && user.character_outfit.includes("dark"))
+                        ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
+                        : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-full ${item.color} shadow-inner`} />
+                    <span className="text-[10px] font-bold text-slate-700 dark:text-white">{item.label}</span>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
