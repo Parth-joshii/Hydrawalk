@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useApp } from "../contexts/AppContext";
 import { motion } from "framer-motion";
 import { Droplet, Award, Flame, Calendar, Clock, Sparkles, Smile, ThumbsUp, CloudSun, VolumeX } from "lucide-react";
+import { getTodayReminders } from "../services/db";
 
 interface DashboardProps {
   secondsRemaining: number;
@@ -34,7 +35,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [greeting, setGreeting] = useState("");
   const [quote, setQuote] = useState("");
   const [completedReminders, setCompletedReminders] = useState(0);
-  const [snoozedCount] = useState(0);
+  const [overdueCountDb, setOverdueCountDb] = useState(0);
+  const [snoozedCount, setSnoozedCount] = useState(0);
 
   // Load random quote & setup greeting
   useEffect(() => {
@@ -47,11 +49,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
     else setGreeting("Good Evening");
   }, []);
 
-  // Calculate reminder counts from today's logs
+  // Calculate reminder counts from today's database logs
   useEffect(() => {
-    // We count how many 250ml logs exist as completed reminders (for simplicity)
-    const completed = todayLogs.length;
-    setCompletedReminders(completed);
+    async function loadTodayReminders() {
+      try {
+        const todayR = await getTodayReminders();
+        const completed = todayR.filter(r => r.status === "Completed").length;
+        const overdue = todayR.filter(r => r.status === "Overdue").length;
+        const snoozed = todayR.filter(r => r.status === "Snoozed").length;
+        
+        setCompletedReminders(completed);
+        setOverdueCountDb(overdue);
+        setSnoozedCount(snoozed);
+      } catch (err) {
+        console.error("Failed to load today's reminders for hydration score:", err);
+      }
+    }
+    loadTodayReminders();
   }, [todayLogs]);
 
   if (!user) return null;
@@ -104,7 +118,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   // Hydration compliance score
   const getHydrationScore = () => {
-    const total = completedReminders + overdueCount;
+    const activeOverdues = Math.max(overdueCount, overdueCountDb);
+    const total = completedReminders + activeOverdues;
     if (total === 0) return { label: "Excellent", color: "text-emerald-400" };
     const rate = completedReminders / total;
     if (rate >= 0.8) return { label: "Excellent", color: "text-emerald-400" };
@@ -300,7 +315,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
               <div className="bg-slate-100/50 dark:bg-slate-800/30 py-2 rounded-lg">
                 <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Overdue</span>
-                <span className="text-sm font-bold text-red-600 dark:text-red-400">{overdueCount}</span>
+                <span className="text-sm font-bold text-red-600 dark:text-red-400">{Math.max(overdueCount, overdueCountDb)}</span>
               </div>
               <div className="bg-slate-100/50 dark:bg-slate-800/30 py-2 rounded-lg">
                 <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Snoozed</span>
