@@ -74,7 +74,7 @@ export const OverlayView: React.FC = () => {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 w-screen h-screen flex items-center justify-center transparent-bg select-none pointer-events-none">
+    <div className="fixed inset-0 w-screen h-screen flex items-end justify-start p-10 transparent-bg select-none pointer-events-none">
       <div
         className="pointer-events-auto cursor-pointer active:scale-95 transition-all"
         onMouseEnter={() => setInteractive(true)}
@@ -83,8 +83,8 @@ export const OverlayView: React.FC = () => {
         style={{ zIndex: 100 }}
         title="Click to drink water"
       >
-        {/* ChromaKey video player displayed centered on full screen without card */}
-        <ChromaKeyVideo width={500} height={500} className="w-full h-full object-contain" />
+        {/* ChromaKey video player displayed at the bottom left without card */}
+        <ChromaKeyVideo width={320} height={320} className="w-full h-full object-contain" />
       </div>
     </div>
   );

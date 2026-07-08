@@ -304,7 +304,7 @@ const MainAppContent: React.FC = () => {
 
       {/* Floating Web-based Video Overlay (Cardless) */}
       {activeReminder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-[4px] select-none pointer-events-none">
+        <div className="fixed inset-0 z-50 flex items-end justify-start p-10 bg-black/35 backdrop-blur-[2px] select-none pointer-events-none">
           <div
             className="pointer-events-auto cursor-pointer active:scale-95 transition-all"
             onClick={() => {
@@ -312,7 +312,7 @@ const MainAppContent: React.FC = () => {
               setShowCamera(true);
             }}
           >
-            <ChromaKeyVideo width={500} height={500} className="w-full h-full object-contain" />
+            <ChromaKeyVideo width={320} height={320} className="w-full h-full object-contain" />
           </div>
         </div>
       )}
