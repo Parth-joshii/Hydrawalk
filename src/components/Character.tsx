@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, Variants } from "framer-motion";
+import { getAvatarUrl } from "../utils/avatar";
 
 export type CharacterState =
   | "idle"
@@ -21,32 +22,11 @@ interface CharacterProps {
 
 export const Character: React.FC<CharacterProps> = ({
   state,
-  outfit = "hoodie_blue",
+  outfit = "0_blue",
   scale = 1,
   gender = "Female",
 }) => {
-  // Pick image based on gender and outfit choice
-  let characterImage = "/character-girl.png";
-  if (gender === "Male") {
-    if (outfit === "hoodie_pink") {
-      characterImage = "/character-boy-pink.png";
-    } else if (outfit === "hoodie_dark") {
-      characterImage = "/character-boy-dark.png";
-    } else if (outfit === "hoodie_blue") {
-      characterImage = "/character-boy-blue.png";
-    } else {
-      characterImage = "/character-boy.png";
-    }
-  } else {
-    // Female / Other
-    if (outfit === "hoodie_pink") {
-      characterImage = "/character-girl-pink.png";
-    } else if (outfit === "hoodie_dark") {
-      characterImage = "/character-girl-dark.png";
-    } else {
-      characterImage = "/character-girl.png";
-    }
-  }
+  const characterImage = getAvatarUrl(gender, outfit);
   const width = 150 * scale;
   const height = 200 * scale;
 

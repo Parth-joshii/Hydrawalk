@@ -4,18 +4,11 @@ import { getReminderLogsForRange } from "../services/db";
 import { ShieldAlert, Award, Calendar, Weight, Clock, Pencil, X, Save } from "lucide-react";
 import { BADGES, Badge } from "./AchievementsList";
 
+import { getAvatarUrl } from "../utils/avatar";
+
 // Character avatars — automatically switch based on gender
-const AVATAR_BY_GENDER = (gender: string, outfit: string = "hoodie_blue") => {
-  if (gender === "Male") {
-    if (outfit === "hoodie_pink") return "/character-boy-pink.png";
-    if (outfit === "hoodie_dark") return "/character-boy-dark.png";
-    if (outfit === "hoodie_blue") return "/character-boy-blue.png";
-    return "/character-boy.png";
-  } else {
-    if (outfit === "hoodie_pink") return "/character-girl-pink.png";
-    if (outfit === "hoodie_dark") return "/character-girl-dark.png";
-    return "/character-girl.png";
-  }
+const AVATAR_BY_GENDER = (gender: string, outfit: string = "0_blue") => {
+  return getAvatarUrl(gender, outfit);
 };
 
 export const UserProfile: React.FC = () => {
