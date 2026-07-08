@@ -10,7 +10,6 @@ import { Settings as SettingsView } from "./components/Settings";
 import { isTauriRuntime } from "./utils/runtime";
 import { Home, BarChart3, Trophy, User as UserIcon, Settings, Play, Pause, Flame, LogOut } from "lucide-react";
 import { LoginView } from "./components/LoginView";
-import { DrinkingCameraModal } from "./components/DrinkingCameraModal";
 import { ChromaKeyVideo } from "./components/ChromaKeyVideo";
 
 // Lazy-load the desktop overlay to prevent Tauri API crashes in Vercel web environments
@@ -20,7 +19,6 @@ const OverlayView = lazy(() => import("./components/OverlayView").then((m) => ({
 const MainAppContent: React.FC = () => {
   const { user, todayIntake, streak, isDbInitialized, isLoading, initializationError, isAuthenticated, login, logout } = useApp();
   const [activeTab, setActiveTab] = useState<"dashboard" | "stats" | "achievements" | "profile" | "settings">("dashboard");
-  const [showCamera, setShowCamera] = useState(false);
 
   // Run the background reminder hook inside the main window
   const {
@@ -60,7 +58,7 @@ const MainAppContent: React.FC = () => {
     };
   }, []);
 
-  // Listen to overlay actions to show camera and focus window
+  // Listen to overlay actions to log water and focus window
   useEffect(() => {
     let unlistenOverlayDone: () => void;
 
@@ -76,8 +74,8 @@ const MainAppContent: React.FC = () => {
         mainWin.show().catch(console.error);
         mainWin.unminimize().catch(console.error);
         mainWin.setFocus().catch(console.error);
-        // Show camera
-        setShowCamera(true);
+        // Log water directly
+        handleDone(250);
       });
     }
 
@@ -85,7 +83,7 @@ const MainAppContent: React.FC = () => {
     return () => {
       if (unlistenOverlayDone) unlistenOverlayDone();
     };
-  }, [dismissReminder]);
+  }, [dismissReminder, handleDone]);
 
   if (initializationError) {
     return (
@@ -309,22 +307,13 @@ const MainAppContent: React.FC = () => {
             className="pointer-events-auto cursor-pointer active:scale-95 transition-all"
             onClick={() => {
               dismissReminder();
-              setShowCamera(true);
+              handleDone(250);
             }}
           >
             <ChromaKeyVideo width={320} height={320} className="w-full h-full object-contain" />
           </div>
         </div>
       )}
-
-      <DrinkingCameraModal
-        isOpen={showCamera}
-        onClose={() => setShowCamera(false)}
-        onVerified={async () => {
-          setShowCamera(false);
-          await handleDone(250);
-        }}
-      />
     </div>
   );
 };
