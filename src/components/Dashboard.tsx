@@ -120,12 +120,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const getHydrationScore = () => {
     const activeOverdues = Math.max(overdueCount, overdueCountDb);
     const total = completedReminders + activeOverdues;
-    if (total === 0) return { label: "Excellent", color: "text-emerald-400" };
+    if (total === 0) return { label: "Excellent", percentage: 100, color: "text-emerald-400" };
     const rate = completedReminders / total;
-    if (rate >= 0.8) return { label: "Excellent", color: "text-emerald-400" };
-    if (rate >= 0.6) return { label: "Good", color: "text-blue-400" };
-    if (rate >= 0.4) return { label: "Average", color: "text-amber-400" };
-    return { label: "Poor", color: "text-red-400" };
+    const percentage = Math.round(rate * 100);
+    if (rate >= 0.8) return { label: "Excellent", percentage, color: "text-emerald-400" };
+    if (rate >= 0.6) return { label: "Good", percentage, color: "text-blue-400" };
+    if (rate >= 0.4) return { label: "Average", percentage, color: "text-amber-400" };
+    return { label: "Poor", percentage, color: "text-red-400" };
   };
 
   const score = getHydrationScore();
@@ -301,7 +302,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 Hydration Score
               </span>
               <h3 className={`text-3xl font-black mt-2 ${score.color}`}>
-                {score.label}
+                {score.percentage}% - {score.label}
               </h3>
               <p className="text-xs text-slate-550 dark:text-slate-400 mt-1">
                 Based on reminder completions and overdue response rates.
