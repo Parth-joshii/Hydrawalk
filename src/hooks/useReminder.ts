@@ -421,6 +421,14 @@ export const useReminder = () => {
     }
   };
 
+  const dismissReminder = () => {
+    stopReminderSoundLoop();
+    if (overdueTimerRef.current) clearTimeout(overdueTimerRef.current);
+    if (responseTimerRef.current) clearInterval(responseTimerRef.current);
+    setActiveReminder(false);
+    setIsOverdue(false);
+  };
+
   return {
     isTimerReady,
     secondsRemaining,
@@ -434,6 +442,7 @@ export const useReminder = () => {
     handleSkip,
     triggerReminder,
     resetTimer,
+    dismissReminder,
     stopSound: stopReminderSoundLoop,
   };
 };

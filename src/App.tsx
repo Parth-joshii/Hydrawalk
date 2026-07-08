@@ -8,9 +8,10 @@ import { AchievementsList } from "./components/AchievementsList";
 import { UserProfile } from "./components/UserProfile";
 import { Settings as SettingsView } from "./components/Settings";
 import { isTauriRuntime } from "./utils/runtime";
-import { Home, BarChart3, Trophy, User as UserIcon, Settings, Play, Pause, Flame, LogOut, X } from "lucide-react";
+import { Home, BarChart3, Trophy, User as UserIcon, Settings, Play, Pause, Flame, LogOut } from "lucide-react";
 import { LoginView } from "./components/LoginView";
 import { Character } from "./components/Character";
+import { DrinkingCameraModal } from "./components/DrinkingCameraModal";
 
 // Lazy-load the desktop overlay to prevent Tauri API crashes in Vercel web environments
 const OverlayView = lazy(() => import("./components/OverlayView").then((m) => ({ default: m.OverlayView })));
@@ -19,6 +20,7 @@ const OverlayView = lazy(() => import("./components/OverlayView").then((m) => ({
 const MainAppContent: React.FC = () => {
   const { user, todayIntake, streak, isDbInitialized, isLoading, initializationError, isAuthenticated, login, logout } = useApp();
   const [activeTab, setActiveTab] = useState<"dashboard" | "stats" | "achievements" | "profile" | "settings">("dashboard");
+  const [showCamera, setShowCamera] = useState(false);
 
   // Run the background reminder hook inside the main window
   const {
@@ -30,9 +32,9 @@ const MainAppContent: React.FC = () => {
     togglePause,
     handleDone,
     handleSnooze,
-    handleSkip,
     triggerReminder,
     resetTimer,
+    dismissReminder,
     stopSound,
   } = useReminder();
 
@@ -276,23 +278,8 @@ const MainAppContent: React.FC = () => {
 
       {/* Web-based Reminder Modal Overlay */}
       {activeReminder && (
-        <div 
-          onClick={handleSkip}
-          className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/75 backdrop-blur-md cursor-pointer"
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md glass-panel p-8 rounded-3xl relative z-10 shadow-2xl text-center flex flex-col items-center cursor-default"
-          >
-            {/* Elegant Close Button */}
-            <button
-              onClick={handleSkip}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 rounded-xl transition-all cursor-pointer"
-              title="Close"
-            >
-              <X size={16} />
-            </button>
-
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/75 backdrop-blur-md">
+          <div className="w-full max-w-md glass-panel p-8 rounded-3xl relative z-10 shadow-2xl text-center flex flex-col items-center">
             {/* Soft background glow */}
             <div className="absolute right-0 top-0 w-48 h-48 bg-blue-500/10 rounded-full filter blur-3xl pointer-events-none" />
 
@@ -317,7 +304,10 @@ const MainAppContent: React.FC = () => {
             {/* Buttons */}
             <div className="w-full space-y-3">
               <button
-                onClick={() => handleDone(250)}
+                onClick={() => {
+                  dismissReminder();
+                  setShowCamera(true);
+                }}
                 className="w-full py-3 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 hover:opacity-90 active:scale-98 text-white font-bold rounded-xl text-xs shadow-lg shadow-indigo-500/20 cursor-pointer transition-all"
               >
                 I Drank Water (+250 ml)
@@ -333,6 +323,15 @@ const MainAppContent: React.FC = () => {
           </div>
         </div>
       )}
+
+      <DrinkingCameraModal
+        isOpen={showCamera}
+        onClose={() => setShowCamera(false)}
+        onVerified={async () => {
+          setShowCamera(false);
+          await handleDone(250);
+        }}
+      />
     </div>
   );
 };
