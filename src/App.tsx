@@ -4,20 +4,33 @@ import { useReminder } from "./hooks/useReminder";
 import { FirstTimeSetup } from "./components/FirstTimeSetup";
 import { Dashboard } from "./components/Dashboard";
 import { Statistics } from "./components/Statistics";
-import { AchievementsList } from "./components/AchievementsList";
+import { AchievementsList, BADGES, Badge } from "./components/AchievementsList";
 import { UserProfile } from "./components/UserProfile";
 import { Settings as SettingsView } from "./components/Settings";
 import { isTauriRuntime } from "./utils/runtime";
-import { Home, BarChart3, Trophy, User as UserIcon, Settings, Play, Pause, Flame, LogOut } from "lucide-react";
+import { Home, BarChart3, Trophy, User as UserIcon, Settings, Play, Pause, Flame, LogOut, Star } from "lucide-react";
 import { LoginView } from "./components/LoginView";
 import { ChromaKeyVideo } from "./components/ChromaKeyVideo";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Lazy-load the desktop overlay to prevent Tauri API crashes in Vercel web environments
 const OverlayView = lazy(() => import("./components/OverlayView").then((m) => ({ default: m.OverlayView })));
 
 // The inner main application container
 const MainAppContent: React.FC = () => {
-  const { user, todayIntake, streak, isDbInitialized, isLoading, initializationError, isAuthenticated, login, logout } = useApp();
+  const { 
+    user, 
+    todayIntake, 
+    streak, 
+    isDbInitialized, 
+    isLoading, 
+    initializationError, 
+    isAuthenticated, 
+    login, 
+    logout,
+    achievementNotif,
+    dismissAchievement
+  } = useApp();
   const [activeTab, setActiveTab] = useState<"dashboard" | "stats" | "achievements" | "profile" | "settings">("dashboard");
 
   // Run the background reminder hook inside the main window
@@ -314,6 +327,70 @@ const MainAppContent: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Global Achievement Celebration Overlay Modal */}
+      <AnimatePresence>
+        {achievementNotif && (
+          (() => {
+            const activeNotifBadge = BADGES.find((b: Badge) => b.id === achievementNotif);
+            if (!activeNotifBadge) return null;
+
+            return (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-slate-900/65 dark:bg-slate-950/85 backdrop-filter backdrop-blur-md z-[9999] flex items-center justify-center p-6 select-none"
+              >
+                <motion.div
+                  initial={{ scale: 0.8, y: 50 }}
+                  animate={{ scale: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 25 } }}
+                  exit={{ scale: 0.8, y: 50 }}
+                  className="bg-white dark:bg-slate-900/90 border border-amber-500/30 p-8 rounded-3xl max-w-sm w-full text-center relative overflow-hidden shadow-2xl shadow-amber-500/10 text-slate-800 dark:text-white"
+                >
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.08)_0%,transparent_70%)] pointer-events-none animate-pulse" />
+
+                  <div className="flex justify-center mb-6">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-500 flex items-center justify-center text-5xl animate-bounce shadow-xl relative">
+                      🏆
+                      <motion.div
+                        className="absolute -inset-2 rounded-full border border-amber-400/30"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                      />
+                    </div>
+                  </div>
+
+                  <span className="text-xs font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5 mb-1 animate-pulse">
+                    <Star size={12} fill="currentColor" /> Achievement Unlocked!
+                  </span>
+
+                  <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight mb-3">
+                    {activeNotifBadge.name}
+                  </h2>
+
+                  <div
+                    className={`inline-block py-2.5 px-6 rounded-2xl bg-gradient-to-tr ${activeNotifBadge.color} text-4xl mb-4 shadow-inner`}
+                  >
+                    {activeNotifBadge.icon}
+                  </div>
+
+                  <p className="text-sm text-slate-650 dark:text-slate-350 leading-relaxed mb-6">
+                    {activeNotifBadge.desc}
+                  </p>
+
+                  <button
+                    onClick={dismissAchievement}
+                    className="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-900 dark:text-slate-950 font-bold rounded-xl cursor-pointer active:scale-95 transition-all shadow-lg shadow-amber-500/20"
+                  >
+                    Awesome, thank you!
+                  </button>
+                </motion.div>
+              </motion.div>
+            );
+          })()
+        )}
+      </AnimatePresence>
     </div>
   );
 };

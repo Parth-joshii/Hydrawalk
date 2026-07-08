@@ -190,93 +190,106 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const triggerAchievementCheck = async () => {
     if (!user) return;
-    // 1. Check "First Drink"
-    const drinkCount = await getWaterLogCount();
-    if (drinkCount > 0) {
-      const unlocked = await unlockAchievement("first_drink");
-      if (unlocked) setAchievementNotif("first_drink");
-    }
-
-    // 2. Check Streak badges
-    const currentStreak = streak.current_streak;
-    if (currentStreak >= 7) {
-      const unlocked = await unlockAchievement("streak_7");
-      if (unlocked) setAchievementNotif("streak_7");
-    }
-    if (currentStreak >= 30) {
-      const unlocked = await unlockAchievement("streak_30");
-      if (unlocked) setAchievementNotif("streak_30");
-    }
-
-    // 3. Check Volume totals: 100/500/1000 Drinks
-    if (drinkCount >= 100) {
-      const unlocked = await unlockAchievement("drinks_100");
-      if (unlocked) setAchievementNotif("drinks_100");
-    }
-    if (drinkCount >= 500) {
-      const unlocked = await unlockAchievement("drinks_500");
-      if (unlocked) setAchievementNotif("drinks_500");
-    }
-    if (drinkCount >= 1000) {
-      const unlocked = await unlockAchievement("drinks_1000");
-      if (unlocked) setAchievementNotif("drinks_1000");
-    }
-
-    // 4. Early Bird (drink logged before 8:00 AM local)
-    // Night Owl (drink logged after 10:00 PM local)
-    const latestLog = await getLatestWaterLog();
-    if (latestLog) {
-      const date = new Date(latestLog.timestamp);
-      const hours = date.getHours();
-      if (hours < 8) {
-        const unlocked = await unlockAchievement("early_bird");
-        if (unlocked) setAchievementNotif("early_bird");
-      } else if (hours >= 22) {
-        const unlocked = await unlockAchievement("night_owl");
-        if (unlocked) setAchievementNotif("night_owl");
+    try {
+      // 1. Check "First Drink"
+      const drinkCount = await getWaterLogCount();
+      if (drinkCount > 0) {
+        const unlocked = await unlockAchievement("first_drink");
+        if (unlocked) setAchievementNotif("first_drink");
       }
-    }
 
-    // 5. Perfect Week / Month (consecutive days of goal completion)
-    // We can count how many unique days in the last 7/30 days achieved goal
-    // To keep it light, let's fetch water logs for range and check
-    const last30Logs = await getWaterLogsForRange(30);
-    const dayTotals: Record<string, number> = {};
-    last30Logs.forEach((log) => {
-      const day = log.timestamp.split("T")[0];
-      dayTotals[day] = (dayTotals[day] || 0) + log.amount;
-    });
-
-    const dates = Object.keys(dayTotals).sort();
-    
-    // Check perfect week (7 days in a row of meeting goal)
-    let consecutiveMet = 0;
-    let perfectWeekUnlocked = false;
-    let perfectMonthUnlocked = false;
-
-    // Check if the user reached their water goal in consecutive days
-    for (let i = 0; i < dates.length; i++) {
-      if (dayTotals[dates[i]] >= user.daily_goal) {
-        consecutiveMet++;
-        if (consecutiveMet >= 7) perfectWeekUnlocked = true;
-        if (consecutiveMet >= 30) perfectMonthUnlocked = true;
-      } else {
-        consecutiveMet = 0;
+      // 2. Check Streak badges
+      const currentStreak = streak.current_streak;
+      if (currentStreak >= 7) {
+        const unlocked = await unlockAchievement("streak_7");
+        if (unlocked) setAchievementNotif("streak_7");
       }
-    }
+      if (currentStreak >= 30) {
+        const unlocked = await unlockAchievement("streak_30");
+        if (unlocked) setAchievementNotif("streak_30");
+      }
 
-    if (perfectWeekUnlocked) {
-      const unlocked = await unlockAchievement("perfect_week");
-      if (unlocked) setAchievementNotif("perfect_week");
-    }
-    if (perfectMonthUnlocked) {
-      const unlocked = await unlockAchievement("perfect_month");
-      if (unlocked) setAchievementNotif("perfect_month");
-    }
+      // 3. Check Volume totals: 100/500/1000 Drinks
+      if (drinkCount >= 100) {
+        const unlocked = await unlockAchievement("drinks_100");
+        if (unlocked) setAchievementNotif("drinks_100");
+      }
+      if (drinkCount >= 500) {
+        const unlocked = await unlockAchievement("drinks_500");
+        if (unlocked) setAchievementNotif("drinks_500");
+      }
+      if (drinkCount >= 1000) {
+        const unlocked = await unlockAchievement("drinks_1000");
+        if (unlocked) setAchievementNotif("drinks_1000");
+      }
 
-    // Update achievements state
-    const unlocked = await getUnlockedAchievements();
-    setAchievements(unlocked);
+      // 4. Early Bird / Night Owl
+      const latestLog = await getLatestWaterLog();
+      if (latestLog) {
+        const date = new Date(latestLog.timestamp);
+        const hours = date.getHours();
+        if (hours < 8) {
+          const unlocked = await unlockAchievement("early_bird");
+          if (unlocked) setAchievementNotif("early_bird");
+        } else if (hours >= 22) {
+          const unlocked = await unlockAchievement("night_owl");
+          if (unlocked) setAchievementNotif("night_owl");
+        }
+      }
+
+      // 5. Perfect Week / Month (TRUE consecutive calendar days of meeting daily goal)
+      const last30Logs = await getWaterLogsForRange(30);
+      const dayTotals: Record<string, number> = {};
+      last30Logs.forEach((log) => {
+        const day = log.timestamp.split("T")[0];
+        dayTotals[day] = (dayTotals[day] || 0) + log.amount;
+      });
+
+      const dates = Object.keys(dayTotals).sort();
+      
+      let consecutiveMet = 0;
+      let perfectWeekUnlocked = false;
+      let perfectMonthUnlocked = false;
+
+      // Scan dates chronologically and ensure they are contiguous calendar days
+      for (let i = 0; i < dates.length; i++) {
+        const meetsGoal = dayTotals[dates[i]] >= user.daily_goal;
+        if (meetsGoal) {
+          if (i === 0) {
+            consecutiveMet = 1;
+          } else {
+            const prevDate = new Date(dates[i - 1]);
+            const currentDate = new Date(dates[i]);
+            const diffTime = Math.abs(currentDate.getTime() - prevDate.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays === 1) {
+              consecutiveMet++;
+            } else {
+              consecutiveMet = 1; // start new sequence since they skipped days
+            }
+          }
+          if (consecutiveMet >= 7) perfectWeekUnlocked = true;
+          if (consecutiveMet >= 30) perfectMonthUnlocked = true;
+        } else {
+          consecutiveMet = 0;
+        }
+      }
+
+      if (perfectWeekUnlocked) {
+        const unlocked = await unlockAchievement("perfect_week");
+        if (unlocked) setAchievementNotif("perfect_week");
+      }
+      if (perfectMonthUnlocked) {
+        const unlocked = await unlockAchievement("perfect_month");
+        if (unlocked) setAchievementNotif("perfect_month");
+      }
+
+      // Update achievements state
+      const unlocked = await getUnlockedAchievements();
+      setAchievements(unlocked);
+    } catch (err) {
+      console.error("Error during achievements check:", err);
+    }
   };
 
   return (
