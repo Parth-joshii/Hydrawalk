@@ -26,8 +26,9 @@ export const ChromaKeyVideo: React.FC<ChromaKeyVideoProps> = ({
     if (!ctx) return;
 
     // Detect background checkerboard colors dynamically
-    let bgR1 = 0, bgG1 = 0, bgB1 = 0;
-    let bgR2 = 0, bgG2 = 0, bgB2 = 0;
+    // Default fallback values: typical gray transparency checkers (e.g. RGB 204 and RGB 255)
+    let bgR1 = 204, bgG1 = 204, bgB1 = 204;
+    let bgR2 = 255, bgG2 = 255, bgB2 = 255;
     let hasBgColors = false;
 
     const render = () => {
@@ -115,12 +116,23 @@ export const ChromaKeyVideo: React.FC<ChromaKeyVideoProps> = ({
       animationFrameId = requestAnimationFrame(render);
     };
 
+    const handleInteraction = () => {
+      if (video.paused) {
+        video.play().catch((err) => console.log("Interaction play failed:", err));
+      }
+    };
+    
+    window.addEventListener("click", handleInteraction);
+    window.addEventListener("touchstart", handleInteraction);
+
     video.play().catch((err) => console.log("Video auto-play blocked or failed:", err));
     render();
 
     return () => {
       isDestroyed = true;
       cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("click", handleInteraction);
+      window.removeEventListener("touchstart", handleInteraction);
     };
   }, []);
 
