@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 
 interface RecoloredCharacterProps {
   gender: string;
-  outfit: string;
+  outfit: string; // format: "colorId_accessoryId_headId"
   scale?: number;
   className?: string;
 }
@@ -79,7 +79,7 @@ function adjustBrightness(hex: string, percent: number): string {
 
 export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
   gender,
-  outfit = "blue",
+  outfit = "blue_none_none",
   scale = 1,
   className = ""
 }) => {
@@ -87,13 +87,19 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
   const isFemale = (gender || "Female").toLowerCase() === "female" || (gender || "Female").toLowerCase() === "girl";
 
   // Load the default original boy/girl PNG character images
-  const baseSrc = isFemale ? "/character-girl.png?v=2" : "/character-boy-blue.png?v=2";
+  const baseSrc = isFemale ? "/character-girl.png?v=3" : "/character-boy-blue.png?v=3";
 
-  // Parse color option
+  // Parse customization options securely
   let colorId = "blue";
+  let accessoryId = "none";
+  let headId = "none";
+
   if (outfit) {
     if (outfit.includes("_")) {
-      colorId = outfit.split("_")[0];
+      const parts = outfit.split("_");
+      colorId = parts[0] || "blue";
+      accessoryId = parts[1] || "none";
+      headId = parts[2] || "none";
     } else {
       colorId = outfit.replace("hoodie_", "");
     }
@@ -147,11 +153,8 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
 
         let isHoodie = false;
         if (isFemale) {
-          // Girl original green hoodie is Hue between 110 and 175
           isHoodie = h >= 110 && h <= 175 && s > 0.15 && l > 0.15 && l < 0.9;
         } else {
-          // Boy original blue hoodie is Hue between 175 and 235
-          // Exclude the pants which are very dark (l < 0.3)
           isHoodie = h >= 175 && h <= 235 && s > 0.15 && l > 0.30 && l < 0.9;
         }
 
@@ -165,22 +168,19 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
 
       ctx.putImageData(imgData, 0, 0);
 
-      // Apply solid gradient cloth coverage to cover the boy crop-top midriff belly
-      // and make the hoodie look like a premium full-length boy's hoodie!
+      // 1. Cover midriff with a clean hoodie cloth block first for boy
       if (!isFemale) {
         const startX = canvas.width * 0.408;
         const endX = canvas.width * 0.592;
         const startY = canvas.height * 0.52;
         const endY = canvas.height * 0.665;
 
-        // Make left side highlight and right side shaded to match original drawing light source
         const grad = ctx.createLinearGradient(startX, startY, endX, startY);
         grad.addColorStop(0, targetHex);
         grad.addColorStop(0.3, targetHex);
         grad.addColorStop(1, adjustBrightness(targetHex, -18));
 
         ctx.fillStyle = grad;
-
         ctx.beginPath();
         ctx.moveTo(startX, startY - 1);
         ctx.lineTo(endX, startY - 1);
@@ -189,7 +189,6 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
         ctx.closePath();
         ctx.fill();
 
-        // Draw a slight dark shadow bottom-hem outline to add crease realism
         ctx.strokeStyle = adjustBrightness(targetHex, -35);
         ctx.lineWidth = 2.5;
         ctx.beginPath();
@@ -197,8 +196,210 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
         ctx.lineTo(endX - 3, endY - 1);
         ctx.stroke();
       }
+
+      // 2. Define Precise Facial Coordinates
+      const eyeY = isFemale ? canvas.height * 0.35 : canvas.height * 0.345;
+      const headY = isFemale ? canvas.height * 0.22 : canvas.height * 0.23;
+
+      // 3. Render Sunglasses / Glasses overlay options
+      if (accessoryId !== "none") {
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        if (accessoryId === "sunglasses") {
+          // Cool Black Sunglasses
+          ctx.fillStyle = "rgba(15, 23, 42, 0.95)";
+          ctx.strokeStyle = "#334155";
+          ctx.lineWidth = 2;
+
+          // Left Lens
+          ctx.beginPath();
+          ctx.arc(canvas.width * 0.44, eyeY, 13, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Right Lens
+          ctx.beginPath();
+          ctx.arc(canvas.width * 0.56, eyeY, 13, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Bridge
+          ctx.strokeStyle = "#1e293b";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.46, eyeY - 3);
+          ctx.lineTo(canvas.width * 0.54, eyeY - 3);
+          ctx.stroke();
+
+          // Light reflection glint
+          ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+          ctx.beginPath();
+          ctx.ellipse(canvas.width * 0.42, eyeY - 4, 3, 6, Math.PI / 4, 0, Math.PI * 2);
+          ctx.ellipse(canvas.width * 0.54, eyeY - 4, 3, 6, Math.PI / 4, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (accessoryId === "round") {
+          // Retro Round Glasses
+          ctx.strokeStyle = "#64748b"; // Dark steel frame
+          ctx.lineWidth = 2.5;
+
+          // Left Lens
+          ctx.beginPath();
+          ctx.arc(canvas.width * 0.44, eyeY, 14, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Right Lens
+          ctx.beginPath();
+          ctx.arc(canvas.width * 0.56, eyeY, 14, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Bridge
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.47, eyeY - 2);
+          ctx.lineTo(canvas.width * 0.53, eyeY - 2);
+          ctx.stroke();
+        } else if (accessoryId === "aviators") {
+          // Gold Aviators
+          ctx.strokeStyle = "#fbbf24"; // Gold metal frame
+          ctx.fillStyle = "rgba(251, 191, 36, 0.35)"; // Amber gradient tint
+          ctx.lineWidth = 2;
+
+          // Left Aviator lens shape
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.39, eyeY - 9);
+          ctx.lineTo(canvas.width * 0.49, eyeY - 9);
+          ctx.lineTo(canvas.width * 0.48, eyeY + 11);
+          ctx.lineTo(canvas.width * 0.41, eyeY + 9);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Right Aviator lens shape
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.51, eyeY - 9);
+          ctx.lineTo(canvas.width * 0.61, eyeY - 9);
+          ctx.lineTo(canvas.width * 0.59, eyeY + 11);
+          ctx.lineTo(canvas.width * 0.52, eyeY + 9);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Double Bridge
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.48, eyeY - 7);
+          ctx.lineTo(canvas.width * 0.52, eyeY - 7);
+          ctx.moveTo(canvas.width * 0.48, eyeY - 3);
+          ctx.lineTo(canvas.width * 0.52, eyeY - 3);
+          ctx.stroke();
+        } else if (accessoryId === "cyberpunk") {
+          // Cyan Cyberpunk Visor
+          ctx.fillStyle = "rgba(6, 182, 212, 0.82)";
+          ctx.strokeStyle = "#22d3ee";
+          ctx.lineWidth = 2;
+
+          ctx.beginPath();
+          // Draw visor plate
+          ctx.roundRect(canvas.width * 0.37, eyeY - 11, canvas.width * 0.26, 22, 5);
+          ctx.fill();
+          ctx.stroke();
+
+          // Laser neon scanning beam lines
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.39, eyeY);
+          ctx.lineTo(canvas.width * 0.61, eyeY);
+          ctx.stroke();
+        }
+      }
+
+      // 4. Render Head Accessories
+      if (headId !== "none") {
+        if (headId === "crown") {
+          // Golden Royal Crown
+          ctx.fillStyle = "#fbbf24";
+          ctx.strokeStyle = "#b45309";
+          ctx.lineWidth = 2;
+
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.43, headY);
+          ctx.lineTo(canvas.width * 0.41, headY - 18);
+          ctx.lineTo(canvas.width * 0.46, headY - 7);
+          ctx.lineTo(canvas.width * 0.50, headY - 24); // Center Peak
+          ctx.lineTo(canvas.width * 0.54, headY - 7);
+          ctx.lineTo(canvas.width * 0.59, headY - 18);
+          ctx.lineTo(canvas.width * 0.57, headY);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Royal Ruby & Sapphire Jewels
+          ctx.fillStyle = "#ef4444";
+          ctx.beginPath(); ctx.arc(canvas.width * 0.41, headY - 19, 3, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = "#3b82f6";
+          ctx.beginPath(); ctx.arc(canvas.width * 0.50, headY - 25, 3.5, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = "#ef4444";
+          ctx.beginPath(); ctx.arc(canvas.width * 0.59, headY - 19, 3, 0, Math.PI*2); ctx.fill();
+        } else if (headId === "flower") {
+          // Flower Headband
+          const drawFlower = (cx: number, cy: number, r: number, color: string) => {
+            ctx.fillStyle = color;
+            for (let j = 0; j < 5; j++) {
+              const angle = (j * Math.PI * 2) / 5;
+              const px = cx + Math.cos(angle) * r;
+              const py = cy + Math.sin(angle) * r;
+              ctx.beginPath();
+              ctx.arc(px, py, r * 0.65, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.fillStyle = "#fef08a"; // Gold center
+            ctx.beginPath(); ctx.arc(cx, cy, r * 0.4, 0, Math.PI * 2); ctx.fill();
+          };
+
+          drawFlower(canvas.width * 0.45, headY - 4, 7, "#f43f5e"); // Pink-Red Rose
+          drawFlower(canvas.width * 0.50, headY - 7, 8.5, "#ffffff"); // White Daisy
+          drawFlower(canvas.width * 0.55, headY - 4, 7, "#60a5fa"); // Sky Orchid
+        } else if (headId === "catears") {
+          // Furry Neko Cat Ears
+          const hairBaseColor = "#475569"; // Slate gray ears
+
+          // Left Ear
+          ctx.fillStyle = hairBaseColor;
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.41, headY - 2);
+          ctx.lineTo(canvas.width * 0.36, headY - 21);
+          ctx.lineTo(canvas.width * 0.45, headY - 9);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = "#fda4af"; // inner pink ear skin
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.40, headY - 3);
+          ctx.lineTo(canvas.width * 0.37, headY - 17);
+          ctx.lineTo(canvas.width * 0.43, headY - 8);
+          ctx.closePath();
+          ctx.fill();
+
+          // Right Ear
+          ctx.fillStyle = hairBaseColor;
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.59, headY - 2);
+          ctx.lineTo(canvas.width * 0.64, headY - 21);
+          ctx.lineTo(canvas.width * 0.55, headY - 9);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = "#fda4af";
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.60, headY - 3);
+          ctx.lineTo(canvas.width * 0.63, headY - 17);
+          ctx.lineTo(canvas.width * 0.57, headY - 8);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
     };
-  }, [baseSrc, targetHex, isFemale]);
+  }, [baseSrc, targetHex, isFemale, accessoryId, headId]);
 
   return (
     <canvas

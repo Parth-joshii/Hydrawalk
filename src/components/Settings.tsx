@@ -24,30 +24,27 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
     user && ![30, 45, 60, 90, 120].includes(user.reminder_interval) ? user.reminder_interval : ""
   );
 
+  const [customizerTab, setCustomizerTab] = useState<"hoodie" | "accessory" | "head">("hoodie");
+
   if (!user) return null;
 
   // Parser logic to show currently selected trait states
   let colorId = "blue";
-  let hairStyleIndex = 0;
-  let hairColorId = "black";
   let accessoryId = "none";
-  let themeIndex = 0;
+  let headId = "none";
 
   if (user.character_outfit && user.character_outfit.includes("_")) {
     const parts = user.character_outfit.split("_");
-    if (parts.length >= 4) {
+    if (parts.length === 3) {
       colorId = parts[0];
-      hairStyleIndex = parseInt(parts[1], 10) || 0;
-      hairColorId = parts[2];
+      accessoryId = parts[1];
+      headId = parts[2];
+    } else if (parts.length >= 4) {
+      colorId = parts[0];
       accessoryId = parts[3];
-      if (parts.length === 5) {
-        themeIndex = parseInt(parts[4], 10) || 0;
-      }
+      headId = "none";
     } else if (parts.length === 2) {
-      hairStyleIndex = parseInt(parts[0], 10) || 0;
       colorId = parts[1];
-    } else {
-      colorId = parts[1] || "blue";
     }
   } else {
     if (user.character_outfit) {
@@ -55,20 +52,16 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
     }
   }
 
-  const setTrait = async (key: "color" | "hairStyle" | "hairColor" | "accessory" | "theme", value: string | number) => {
+  const setTrait = async (key: "color" | "accessory" | "head", value: string) => {
     let newColor = colorId;
-    let newHairStyle = hairStyleIndex;
-    let newHairColor = hairColorId;
     let newAccessory = accessoryId;
-    let newTheme = themeIndex;
+    let newHead = headId;
 
-    if (key === "color") newColor = value as string;
-    if (key === "hairStyle") newHairStyle = value as number;
-    if (key === "hairColor") newHairColor = value as string;
-    if (key === "accessory") newAccessory = value as string;
-    if (key === "theme") newTheme = value as number;
+    if (key === "color") newColor = value;
+    if (key === "accessory") newAccessory = value;
+    if (key === "head") newHead = value;
 
-    const encodedOutfit = `${newColor}_${newHairStyle}_${newHairColor}_${newAccessory}_${newTheme}`;
+    const encodedOutfit = `${newColor}_${newAccessory}_${newHead}`;
     await setOutfit(encodedOutfit);
   };
 
@@ -464,7 +457,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
             🚶‍♀️ Profile Character Visuals
           </h2>
           <p className="text-xs text-slate-400">
-            Customize the hoodie color of your original boy or girl character visuals.
+            Customize your original boy or girl character visuals with dynamic colors and Snapchat accessories.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-8 pt-2">
@@ -476,47 +469,124 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
 
             {/* Customizer */}
             <div className="flex-1 space-y-4 w-full">
-              <label className="block text-xs font-semibold text-slate-400 uppercase">
-                Choose Hoodie Color (10 options)
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              {/* Tabs Header */}
+              <div className="flex border-b border-slate-200 dark:border-slate-800/80 gap-1 overflow-x-auto pb-[2px]">
                 {[
-                  { id: "blue", label: "Sky Blue", color: "bg-blue-500" },
-                  { id: "green", label: "Emerald Green", color: "bg-emerald-500" },
-                  { id: "yellow", label: "Sunny Yellow", color: "bg-yellow-500" },
-                  { id: "dark", label: "Sleek Dark", color: "bg-slate-700" },
-                  { id: "red", label: "Crimson Red", color: "bg-red-500" },
-                  { id: "purple", label: "Royal Purple", color: "bg-purple-500" },
-                  { id: "orange", label: "Bright Orange", color: "bg-orange-500" },
-                  { id: "teal", label: "Teal", color: "bg-teal-500" },
-                  { id: "indigo", label: "Indigo", color: "bg-indigo-500" },
-                  { id: "pink", label: "Sweet Pink", color: "bg-pink-400" },
-                ]
-                  .filter((item) => {
-                    const isBoy = (user.gender || "Female").toLowerCase() === "male" || (user.gender || "Female").toLowerCase() === "boy";
-                    return !(isBoy && item.id === "pink");
-                  })
-                  .map((item) => {
-                    const isSelected = colorId === item.id;
-                    
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => setTrait("color", item.id)}
-                        className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
-                          isSelected
-                            ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
-                            : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
-                        }`}
-                      >
-                        <div className={`w-8 h-8 rounded-full ${item.color} shadow-inner`} />
-                        <span className="text-[10px] font-bold text-slate-700 dark:text-white truncate w-full text-center">
-                          {item.label}
-                        </span>
-                      </button>
-                    );
-                  })
-                }
+                  { id: "hoodie", label: "👕 Hoodie Color" },
+                  { id: "accessory", label: "🕶️ Sunglasses" },
+                  { id: "head", label: "👑 Headwear" },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setCustomizerTab(tab.id as any)}
+                    className={`px-3.5 py-2 text-xs font-bold transition-all cursor-pointer border-b-2 -mb-[2px] whitespace-nowrap ${
+                      customizerTab === tab.id
+                        ? "border-blue-500 text-blue-500 dark:text-blue-400"
+                        : "border-transparent text-slate-450 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Tab Body */}
+              <div className="pt-2">
+                {customizerTab === "hoodie" && (
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    {[
+                      { id: "blue", label: "Sky Blue", color: "bg-blue-500" },
+                      { id: "green", label: "Emerald Green", color: "bg-emerald-500" },
+                      { id: "yellow", label: "Sunny Yellow", color: "bg-yellow-500" },
+                      { id: "dark", label: "Sleek Dark", color: "bg-slate-700" },
+                      { id: "red", label: "Crimson Red", color: "bg-red-500" },
+                      { id: "purple", label: "Royal Purple", color: "bg-purple-500" },
+                      { id: "orange", label: "Bright Orange", color: "bg-orange-500" },
+                      { id: "teal", label: "Teal", color: "bg-teal-500" },
+                      { id: "indigo", label: "Indigo", color: "bg-indigo-500" },
+                      { id: "pink", label: "Sweet Pink", color: "bg-pink-400" },
+                    ]
+                      .filter((item) => {
+                        const isBoy = (user.gender || "Female").toLowerCase() === "male" || (user.gender || "Female").toLowerCase() === "boy";
+                        return !(isBoy && item.id === "pink");
+                      })
+                      .map((item) => {
+                        const isSelected = colorId === item.id;
+                        
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => setTrait("color", item.id)}
+                            className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+                              isSelected
+                                ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
+                                : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
+                            }`}
+                          >
+                            <div className={`w-8 h-8 rounded-full ${item.color} shadow-inner`} />
+                            <span className="text-[10px] font-bold text-slate-700 dark:text-white truncate w-full text-center">
+                              {item.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                  </div>
+                )}
+
+                {customizerTab === "accessory" && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {[
+                      { id: "none", label: "None ❌" },
+                      { id: "sunglasses", label: "Cool Sunglasses 🕶️" },
+                      { id: "round", label: "Retro Round 👓" },
+                      { id: "aviators", label: "Gold Aviators ✈️" },
+                      { id: "cyberpunk", label: "Cyber Visor ⚡" },
+                    ].map((item) => {
+                      const isSelected = accessoryId === item.id;
+
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => setTrait("accessory", item.id)}
+                          className={`p-3.5 rounded-xl border flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                            isSelected
+                              ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
+                              : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
+                          }`}
+                        >
+                          <span className="text-xs font-bold text-slate-700 dark:text-white">{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {customizerTab === "head" && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {[
+                      { id: "none", label: "None ❌" },
+                      { id: "crown", label: "Royal Crown 👑" },
+                      { id: "flower", label: "Flower Wreath 🌸" },
+                      { id: "catears", label: "Cat Ears 🐱" },
+                    ].map((item) => {
+                      const isSelected = headId === item.id;
+
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => setTrait("head", item.id)}
+                          className={`p-3.5 rounded-xl border flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                            isSelected
+                              ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
+                              : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
+                          }`}
+                        >
+                          <span className="text-xs font-bold text-slate-700 dark:text-white">{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>
