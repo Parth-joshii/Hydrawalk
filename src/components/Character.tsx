@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, Variants } from "framer-motion";
-import { AttireCharacter } from "./AttireCharacter";
+import { RecoloredCharacter } from "./RecoloredCharacter";
 
 export type CharacterState =
   | "idle"
@@ -187,7 +187,7 @@ export const Character: React.FC<CharacterProps> = ({
           />
         )}
 
-        <AttireCharacter
+        <RecoloredCharacter
           gender={gender}
           outfit={outfit}
           scale={scale}
