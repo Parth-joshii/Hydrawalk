@@ -23,7 +23,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
   const [customInterval, setCustomInterval] = useState<number | "">(
     user && ![30, 45, 60, 90, 120].includes(user.reminder_interval) ? user.reminder_interval : ""
   );
-  const [customizerTab, setCustomizerTab] = useState<"hoodie" | "hair" | "hairColor" | "accessory">("hoodie");
+  const [customizerTab, setCustomizerTab] = useState<"hoodie" | "hair" | "hairColor" | "accessory" | "theme">("hoodie");
 
   if (!user) return null;
 
@@ -32,14 +32,18 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
   let hairStyleIndex = 0;
   let hairColorId = "black";
   let accessoryId = "none";
+  let themeIndex = 0;
 
   if (user.character_outfit && user.character_outfit.includes("_")) {
     const parts = user.character_outfit.split("_");
-    if (parts.length === 4) {
+    if (parts.length >= 4) {
       colorId = parts[0];
       hairStyleIndex = parseInt(parts[1], 10) || 0;
       hairColorId = parts[2];
       accessoryId = parts[3];
+      if (parts.length === 5) {
+        themeIndex = parseInt(parts[4], 10) || 0;
+      }
     } else if (parts.length === 2) {
       hairStyleIndex = parseInt(parts[0], 10) || 0;
       colorId = parts[1];
@@ -52,18 +56,20 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
     }
   }
 
-  const setTrait = async (key: "color" | "hairStyle" | "hairColor" | "accessory", value: string | number) => {
+  const setTrait = async (key: "color" | "hairStyle" | "hairColor" | "accessory" | "theme", value: string | number) => {
     let newColor = colorId;
     let newHairStyle = hairStyleIndex;
     let newHairColor = hairColorId;
     let newAccessory = accessoryId;
+    let newTheme = themeIndex;
 
     if (key === "color") newColor = value as string;
     if (key === "hairStyle") newHairStyle = value as number;
     if (key === "hairColor") newHairColor = value as string;
     if (key === "accessory") newAccessory = value as string;
+    if (key === "theme") newTheme = value as number;
 
-    const encodedOutfit = `${newColor}_${newHairStyle}_${newHairColor}_${newAccessory}`;
+    const encodedOutfit = `${newColor}_${newHairStyle}_${newHairColor}_${newAccessory}_${newTheme}`;
     await setOutfit(encodedOutfit);
   };
 
@@ -477,6 +483,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
                   { id: "hair", label: "💇 Hair Style" },
                   { id: "hairColor", label: "🎨 Hair Color" },
                   { id: "accessory", label: "🕶️ Accessories" },
+                  { id: "theme", label: "🎭 Theme" },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -484,7 +491,7 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
                     className={`px-3.5 py-2 text-xs font-bold transition-all cursor-pointer border-b-2 -mb-[2px] whitespace-nowrap ${
                       customizerTab === tab.id
                         ? "border-blue-500 text-blue-500 dark:text-blue-400"
-                        : "border-transparent text-slate-450 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        : "border-transparent text-slate-455 dark:text-slate-400 hover:text-slate-655 dark:hover:text-slate-200"
                     }`}
                   >
                     {tab.label}
@@ -608,7 +615,31 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
                             : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
                         }`}
                       >
-                        <span className="text-xs font-bold text-slate-850 dark:text-white">{acc.label}</span>
+                        <span className="text-xs font-bold text-slate-855 dark:text-white">{acc.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {customizerTab === "theme" && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {[
+                      { index: 0, label: "Classic Hoodie" },
+                      { index: 1, label: "Shinobi Ninja" },
+                      { index: 2, label: "School Uniform" },
+                      { index: 3, label: "Cyberpunk Neon" },
+                      { index: 4, label: "Neko Cat-Ear" },
+                    ].map((thm) => (
+                      <button
+                        key={thm.index}
+                        onClick={() => setTrait("theme", thm.index)}
+                        className={`p-3.5 rounded-xl border flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                          themeIndex === thm.index
+                            ? "bg-blue-500/10 border-blue-500 text-blue-500 dark:text-blue-400 shadow-md"
+                            : "bg-slate-100/40 dark:bg-slate-900/40 border-slate-250 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700"
+                        }`}
+                      >
+                        <span className="text-xs font-bold text-slate-850 dark:text-white">{thm.label}</span>
                       </button>
                     ))}
                   </div>

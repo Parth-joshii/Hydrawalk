@@ -2,33 +2,37 @@ import React from "react";
 
 interface AttireCharacterProps {
   gender: string;
-  outfit: string; // format: "colorId_hairStyleIndex_hairColorId_accessoryId"
+  outfit: string; // format: "colorId_hairStyleIndex_hairColorId_accessoryId_themeIndex"
   scale?: number;
   className?: string;
 }
 
 export const AttireCharacter: React.FC<AttireCharacterProps> = ({
   gender,
-  outfit = "blue_0_black_none",
+  outfit = "blue_0_black_none_0",
   scale = 1,
   className = ""
 }) => {
   const isFemale = (gender || "Female").toLowerCase() === "female" || (gender || "Female").toLowerCase() === "girl";
 
-  // 1. Parse custom traits
+  // 1. Parse custom traits with robust legacy fallback
   let colorId = "blue";
   let hairStyleIndex = 0;
   let hairColorId = "black";
   let accessoryId = "none";
+  let themeIndex = 0; // 0: Classic, 1: Ninja, 2: School Uniform, 3: Cyberpunk, 4: Neko Cat-Ear
 
   if (outfit) {
     if (outfit.includes("_")) {
       const parts = outfit.split("_");
-      if (parts.length === 4) {
+      if (parts.length >= 4) {
         colorId = parts[0];
         hairStyleIndex = parseInt(parts[1], 10) || 0;
         hairColorId = parts[2];
         accessoryId = parts[3];
+        if (parts.length === 5) {
+          themeIndex = parseInt(parts[4], 10) || 0;
+        }
       } else if (parts.length === 2) {
         hairStyleIndex = parseInt(parts[0], 10) || 0;
         colorId = parts[1];
@@ -67,8 +71,8 @@ export const AttireCharacter: React.FC<AttireCharacterProps> = ({
   };
   const hairColor = hairColors[hairColorId] || hairColors.black;
 
-  const skinColor = "#fed7aa"; // Peach
-  const pantsColor = "#334155"; // Dark Slate
+  const skinColor = "#fed7aa"; // Peach skin
+  const pantsColor = themeIndex === 2 ? "#1e293b" : "#334155"; // School pants are dark
   const shoesColor = "#ffffff";
 
   // Size calculations
@@ -88,34 +92,113 @@ export const AttireCharacter: React.FC<AttireCharacterProps> = ({
       {/* Ground Shadow */}
       <ellipse cx="70" cy="192" rx="32" ry="5" fill="rgba(0,0,0,0.12)" />
 
+      {/* Neko Tail (Theme 4) */}
+      {themeIndex === 4 && (
+        <path d="M96 128 c14 4 20 18 16 28 c-3 8-10 12-16 8 s-8-12 0-18" stroke={hairColor} strokeWidth="5.5" fill="none" strokeLinecap="round" />
+      )}
+
       {/* Legs & Shoes */}
       <rect x="52" y="130" width="12" height="55" rx="4" fill={pantsColor} />
       <rect x="76" y="130" width="12" height="55" rx="4" fill={pantsColor} />
       <path d="M46 182 h18 v10 c0 2-4 2-8 2 h-6 c-3 0-4-2-4-4 z" fill={shoesColor} stroke="#cbd5e1" strokeWidth="1" />
       <path d="M76 182 h18 v10 c0 2-4 2-8 2 h-6 c-3 0-4-2-4-4 z" fill={shoesColor} stroke="#cbd5e1" strokeWidth="1" />
 
-      {/* Hoodie Back-Hood Collar */}
-      <path d="M46 72 C 46 63 94 63 94 72 z" fill={dressColor} opacity="0.85" />
+      {/* Torso / Outfit Layer based on Theme */}
+      {themeIndex === 1 ? (
+        // Theme 1: Shinobi Ninja
+        <g>
+          {/* Underlayer */}
+          <path d="M42 75 h56 v52 H42 z" fill="#1e293b" />
+          {/* Sash wraps */}
+          <path d="M42 78 l56 30 M98 78 l-56 30" stroke={dressColor} strokeWidth="11" strokeLinecap="round" />
+          {/* Obi Sash Belt */}
+          <rect x="40" y="118" width="60" height="9" rx="2" fill="#ef4444" />
+        </g>
+      ) : themeIndex === 2 ? (
+        // Theme 2: School Uniform
+        isFemale ? (
+          // Girls Sailor Outfit
+          <g>
+            <path d="M42 75 h56 v40 H42 z" fill="#ffffff" />
+            {/* Pleated Skirt */}
+            <path d="M40 115 h60 l4 20 H36 z" fill={dressColor} />
+            {/* Sailor blue collar */}
+            <path d="M42 75 l28 18 l28-18 H84 l-14 10 l-14-10 z" fill={dressColor} />
+            {/* Red bow */}
+            <path d="M68 84 l5 8 l-5 3 l-5-3 z M63 84 l-6 4 l1 3 z M77 84 l6 4 l-1 3 z" fill="#ef4444" />
+          </g>
+        ) : (
+          // Boys Black Blazer (Gakuran)
+          <g>
+            <path d="M40 75 h60 c6 0 10 4 10 10 v43 c0 3-3 6-7 6 H37 c-4 0-7-3-7-6 V85 c0-6 4-10 10-10 z" fill="#1e293b" />
+            {/* Golden buttons and lining */}
+            <rect x="68" y="75" width="4" height="56" fill="#fbbf24" />
+            <circle cx="63" cy="86" r="2.5" fill="#fbbf24" />
+            <circle cx="63" cy="98" r="2.5" fill="#fbbf24" />
+            <circle cx="63" cy="110" r="2.5" fill="#fbbf24" />
+            <circle cx="63" cy="122" r="2.5" fill="#fbbf24" />
+          </g>
+        )
+      ) : themeIndex === 3 ? (
+        // Theme 3: Cyberpunk Neon
+        <g>
+          {/* Cyber armor plate */}
+          <path d="M40 75 h60 c6 0 10 4 10 10 v43 c0 3-3 6-7 6 H37 c-4 0-7-3-7-6 V85 c0-6 4-10 10-10 z" fill="#1f2937" />
+          {/* Glowing neon lines */}
+          <path d="M46 82 h48 M46 98 h48 M46 114 h48" stroke={dressColor} strokeWidth="3.5" strokeLinecap="round" opacity="0.95" />
+          {/* Shoulder pads */}
+          <path d="M34 76 h16 v8 H34 z" fill={dressColor} />
+          <path d="M90 76 h16 v8 H90 z" fill={dressColor} />
+        </g>
+      ) : (
+        // Theme 0 & 4: Classic Hoodie / Cat-Ear Hoodie
+        <g>
+          {/* Hoodie Back-Hood Collar */}
+          <path d="M46 72 C 46 63 94 63 94 72 z" fill={dressColor} opacity="0.85" />
+          {/* Torso / Full Hoodie */}
+          <path d="M40 75 h60 c6 0 10 4 10 10 v43 c0 3-3 6-7 6 H37 c-4 0-7-3-7-6 V85 c0-6 4-10 10-10 z" fill={dressColor} />
+          
+          {/* Whisker Print for Neko (Theme 4) */}
+          {themeIndex === 4 ? (
+            <g stroke="#1e293b" strokeWidth="2" strokeLinecap="round">
+              <line x1="56" y1="105" x2="62" y2="105" />
+              <line x1="56" y1="109" x2="60" y2="111" />
+              <line x1="78" y1="105" x2="84" y2="105" />
+              <line x1="80" y1="111" x2="84" y2="109" />
+              <circle cx="70" cy="107" r="3" fill="#ef4444" stroke="none" /> {/* pink nose logo */}
+            </g>
+          ) : (
+            // Classic Hoodie Pocket & Strings
+            <g>
+              <path d="M50 110 h40 l-4 18 H54 z" fill="rgba(255,255,255,0.18)" />
+              <line x1="64" y1="78" x2="64" y2="92" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+              <line x1="76" y1="78" x2="76" y2="92" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+            </g>
+          )}
+        </g>
+      )}
 
-      {/* Torso / Full-Length Hoodie */}
-      <path d="M40 75 h60 c6 0 10 4 10 10 v43 c0 3-3 6-7 6 H37 c-4 0-7-3-7-6 V85 c0-6 4-10 10-10 z" fill={dressColor} />
-      
       {/* Gold Chain (Signature look for Boy!) */}
-      {!isFemale && (
+      {!isFemale && themeIndex === 0 && (
         <path d="M56 82 Q70 94 84 82" stroke="#f59e0b" strokeWidth="2.5" fill="none" strokeLinecap="round" />
       )}
 
-      {/* Hoodie pocket */}
-      <path d="M50 110 h40 l-4 18 H54 z" fill="rgba(255,255,255,0.18)" />
-      {/* Hoodie drawstrings */}
-      <line x1="64" y1="78" x2="64" y2="92" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
-      <line x1="76" y1="78" x2="76" y2="92" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
-
       {/* Arms & Hands */}
-      <path d="M30 80 c-5 10-8 20-8 32 c0 4 3 6 6 4 c4-2 6-12 8-24 z" fill={dressColor} />
+      <path d="M30 80 c-5 10-8 20-8 32 c0 4 3 6 6 4 c4-2 6-12 8-24 z" fill={themeIndex === 2 && !isFemale ? "#1e293b" : themeIndex === 3 ? "#1f2937" : dressColor} />
       <circle cx="23" cy="115" r="5" fill={skinColor} />
-      <path d="M110 80 c5 10 8 20 8 32 c0 4-3 6-6 4 c-4-2-6-12-8-24 z" fill={dressColor} />
-      <circle cx="117" cy="115" r="5" fill={skinColor} />
+      {/* Robot metallic arm for Cyberpunk */}
+      {themeIndex === 3 ? (
+        <g>
+          <path d="M110 80 c5 10 8 20 8 32 c0 4-3 6-6 4 c-4-2-6-12-8-24 z" fill="#9ca3af" />
+          <circle cx="117" cy="115" r="5" fill="#e5e7eb" />
+          <path d="M112 85 l5 24" stroke={dressColor} strokeWidth="1.5" />
+        </g>
+      ) : (
+        <g>
+          <path d="M110 80 c5 10 8 20 8 32 c0 4-3 6-6 4 c-4-2-6-12-8-24 z" fill={themeIndex === 2 && !isFemale ? "#1e293b" : dressColor} />
+          <circle cx="117" cy="115" r="5" fill={skinColor} />
+        </g>
+      )}
 
       {/* Head & Neck */}
       <rect x="66" y="66" width="8" height="12" fill={skinColor} />
@@ -123,10 +206,8 @@ export const AttireCharacter: React.FC<AttireCharacterProps> = ({
 
       {/* Cute Anime Glossy Eyes */}
       <g fill="#1e293b">
-        {/* Left Eye */}
         <ellipse cx="64" cy="51" rx="2.5" ry="3.5" />
         <circle cx="64.8" cy="49.8" r="0.8" fill="#ffffff" />
-        {/* Right Eye */}
         <ellipse cx="76" cy="51" rx="2.5" ry="3.5" />
         <circle cx="76.8" cy="49.8" r="0.8" fill="#ffffff" />
       </g>
@@ -137,6 +218,18 @@ export const AttireCharacter: React.FC<AttireCharacterProps> = ({
 
       {/* Smile */}
       <path d="M65 59 Q70 64 75 59" stroke="#1e293b" strokeWidth="2" strokeLinecap="round" />
+
+      {/* Furry Neko Cat Ears (Theme 4) */}
+      {themeIndex === 4 && (
+        <g fill={hairColor}>
+          {/* Left Cat Ear */}
+          <path d="M48 38 l9-13 l5 13 z" />
+          <path d="M50 38 l6-9 l3 9 z" fill="#fda4af" />
+          {/* Right Cat Ear */}
+          <path d="M92 38 l-9-13 l-5 13 z" />
+          <path d="M90 38 l-6-9 l-3 9 z" fill="#fda4af" />
+        </g>
+      )}
 
       {/* Hair styling (Boy vs Girl) */}
       {isFemale ? (
@@ -168,7 +261,7 @@ export const AttireCharacter: React.FC<AttireCharacterProps> = ({
             <path d="M88 54 c4 8-2 16 2 24 c2 4 6 6 4 8 s-4-6-4-10" fill={hairColor} />
           </g>
         ) : (
-          // Default: Long straight hair (with a sweet flower pin)
+          // Default: Long straight hair (with flower pin)
           <g>
             <path d="M52 48 C 52 33 88 33 88 48 c0 5 4 10 4 15 c-4 0-4-5-8-5 c-6 0-8 6-14 6 s-8-6-14-6 c-4 0-4 5-8 5 c0-5 4-10 4-15" fill={hairColor} />
             <circle cx="83" cy="42" r="3" fill="#f43f5e" />
@@ -205,6 +298,23 @@ export const AttireCharacter: React.FC<AttireCharacterProps> = ({
         )
       )}
 
+      {/* Shinobi Forehead Headband (Theme 1) */}
+      {themeIndex === 1 && (
+        <g>
+          {/* Band */}
+          <rect x="53" y="44" width="34" height="6" fill="#1e293b" />
+          {/* Metal plate */}
+          <rect x="64" y="44" width="12" height="6" fill="#cbd5e1" />
+          {/* Hidden leaf village dot */}
+          <circle cx="70" cy="47" r="1.5" fill="#1e293b" />
+        </g>
+      )}
+
+      {/* Cyber Visor (Theme 3) */}
+      {themeIndex === 3 && (
+        <rect x="54" y="46" width="32" height="7" rx="2.5" fill={dressColor} opacity="0.85" stroke="#ffffff" strokeWidth="1" />
+      )}
+
       {/* Accessories (glasses, headphones, cap, beanie) */}
       {accessoryId === "glasses" && (
         <g stroke="#334155" strokeWidth="2">
@@ -224,18 +334,14 @@ export const AttireCharacter: React.FC<AttireCharacterProps> = ({
 
       {accessoryId === "cap" && (
         <g fill={dressColor}>
-          {/* Cap dome */}
           <path d="M52 46 C 52 34 88 34 88 46 z" />
-          {/* Visor (Backward baseball cap signature!) */}
-          <path d="M84 45 c12 0 16 6 16 8 s-4 4-10 2 z" />
+          <path d="M84 45 c8 0 12 4 12 6 s-3 3-8 1 z" />
         </g>
       )}
 
       {accessoryId === "beanie" && (
         <g>
-          {/* Beanie body */}
           <path d="M52 48 C 52 32 88 32 88 48 v4 H52 z" fill="#ef4444" />
-          {/* Pom pom */}
           <circle cx="70" cy="30" r="5" fill="#ffffff" stroke="#ef4444" strokeWidth="1" />
         </g>
       )}
