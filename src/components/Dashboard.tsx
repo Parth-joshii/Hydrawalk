@@ -116,17 +116,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const weatherAdvice = getWeatherHydrationAdvice();
 
-  // Hydration compliance score
+  // Hydration compliance score based on progress percentage
   const getHydrationScore = () => {
-    const activeOverdues = Math.max(overdueCount, overdueCountDb);
-    const total = completedReminders + activeOverdues;
-    if (total === 0) return { label: "Excellent", percentage: 100, color: "text-emerald-400" };
-    const rate = completedReminders / total;
-    const percentage = Math.round(rate * 100);
-    if (rate >= 0.8) return { label: "Excellent", percentage, color: "text-emerald-400" };
-    if (rate >= 0.6) return { label: "Good", percentage, color: "text-blue-400" };
-    if (rate >= 0.4) return { label: "Average", percentage, color: "text-amber-400" };
-    return { label: "Poor", percentage, color: "text-red-400" };
+    const percentage = Math.min(100, Math.round((todayIntake / user.daily_goal) * 100));
+    if (percentage >= 80) return { label: "Excellent", percentage, color: "text-emerald-500 dark:text-emerald-400" };
+    if (percentage >= 60) return { label: "Good", percentage, color: "text-blue-500 dark:text-blue-400" };
+    if (percentage >= 40) return { label: "Average", percentage, color: "text-amber-500 dark:text-amber-400" };
+    return { label: "Poor", percentage, color: "text-red-500 dark:text-red-400" };
   };
 
   const score = getHydrationScore();
@@ -305,7 +301,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {score.percentage}% - {score.label}
               </h3>
               <p className="text-xs text-slate-550 dark:text-slate-400 mt-1">
-                Based on reminder completions and overdue response rates.
+                Based on your daily goal progress percentage.
               </p>
             </div>
 
