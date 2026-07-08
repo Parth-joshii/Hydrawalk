@@ -8,13 +8,13 @@ import { BADGES, Badge } from "./AchievementsList";
 const AVATAR_BY_GENDER = (gender: string, outfit: string = "hoodie_blue") => {
   const lowerGender = (gender || "Female").toLowerCase();
   if (lowerGender === "male" || lowerGender === "boy") {
-    if (outfit === "hoodie_pink" || outfit.includes("pink")) return "/character-boy-pink.png";
-    if (outfit === "hoodie_dark" || outfit.includes("dark")) return "/character-boy-dark.png";
-    return "/character-boy-blue.png";
+    if (outfit === "hoodie_pink" || outfit.includes("pink")) return "/character-boy-pink.png?v=2";
+    if (outfit === "hoodie_dark" || outfit.includes("dark")) return "/character-boy-dark.png?v=2";
+    return "/character-boy-blue.png?v=2";
   } else {
-    if (outfit === "hoodie_pink" || outfit.includes("pink")) return "/character-girl-pink.png";
-    if (outfit === "hoodie_dark" || outfit.includes("dark")) return "/character-girl-dark.png";
-    return "/character-girl.png";
+    if (outfit === "hoodie_pink" || outfit.includes("pink")) return "/character-girl-pink.png?v=2";
+    if (outfit === "hoodie_dark" || outfit.includes("dark")) return "/character-girl-dark.png?v=2";
+    return "/character-girl.png?v=2";
   }
 };
 

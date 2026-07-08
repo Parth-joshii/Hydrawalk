@@ -26,24 +26,24 @@ export const Character: React.FC<CharacterProps> = ({
   gender = "Female",
 }) => {
   // Pick image based on gender and outfit choice
-  let characterImage = "/character-girl.png";
+  let characterImage = "/character-girl.png?v=2";
   const lowerGender = (gender || "Female").toLowerCase();
   if (lowerGender === "male" || lowerGender === "boy") {
     if (outfit === "hoodie_pink" || outfit.includes("pink")) {
-      characterImage = "/character-boy-pink.png";
+      characterImage = "/character-boy-pink.png?v=2";
     } else if (outfit === "hoodie_dark" || outfit.includes("dark")) {
-      characterImage = "/character-boy-dark.png";
+      characterImage = "/character-boy-dark.png?v=2";
     } else {
-      characterImage = "/character-boy-blue.png";
+      characterImage = "/character-boy-blue.png?v=2";
     }
   } else {
     // Female / Other
     if (outfit === "hoodie_pink" || outfit.includes("pink")) {
-      characterImage = "/character-girl-pink.png";
+      characterImage = "/character-girl-pink.png?v=2";
     } else if (outfit === "hoodie_dark" || outfit.includes("dark")) {
-      characterImage = "/character-girl-dark.png";
+      characterImage = "/character-girl-dark.png?v=2";
     } else {
-      characterImage = "/character-girl.png";
+      characterImage = "/character-girl.png?v=2";
     }
   }
   const width = 150 * scale;
