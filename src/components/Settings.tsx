@@ -411,10 +411,10 @@ export const Settings: React.FC<{ onResetTimer?: () => Promise<void> }> = ({ onR
           )}
         </div>
 
-        {/* Companion Character Visuals */}
+        {/* Profile Character Visuals */}
         <div className="p-6 glass-card rounded-2xl space-y-4 md:col-span-2">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-            🚶‍♀️ Companion Character Visuals
+            🚶‍♀️ Profile Character Visuals
           </h2>
           <p className="text-xs text-slate-400">
             Pick a character outfit that updates the desktop overlay and profile visuals.
