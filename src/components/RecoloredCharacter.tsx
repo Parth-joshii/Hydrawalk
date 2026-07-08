@@ -190,7 +190,7 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
         ctx.fill();
 
         ctx.strokeStyle = adjustBrightness(targetHex, -35);
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = 2.5 * (canvas.width / 500); // Scale stroke size
         ctx.beginPath();
         ctx.moveTo(startX + 3, endY - 1);
         ctx.lineTo(endX - 3, endY - 1);
@@ -198,8 +198,11 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
       }
 
       // 2. Define Precise Facial Coordinates
-      const eyeY = isFemale ? canvas.height * 0.35 : canvas.height * 0.345;
+      const eyeY = isFemale ? canvas.height * 0.355 : canvas.height * 0.342;
       const headY = isFemale ? canvas.height * 0.22 : canvas.height * 0.23;
+
+      // Base scaling factor relative to 500px reference size
+      const scaleFactor = canvas.width / 500;
 
       // 3. Render Sunglasses / Glasses overlay options
       if (accessoryId !== "none") {
@@ -210,105 +213,108 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
           // Cool Black Sunglasses
           ctx.fillStyle = "rgba(15, 23, 42, 0.95)";
           ctx.strokeStyle = "#334155";
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 3.5 * scaleFactor;
+
+          const lensRadius = 22 * scaleFactor;
 
           // Left Lens
           ctx.beginPath();
-          ctx.arc(canvas.width * 0.44, eyeY, 13, 0, Math.PI * 2);
+          ctx.arc(canvas.width * 0.43, eyeY, lensRadius, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
 
           // Right Lens
           ctx.beginPath();
-          ctx.arc(canvas.width * 0.56, eyeY, 13, 0, Math.PI * 2);
+          ctx.arc(canvas.width * 0.57, eyeY, lensRadius, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
 
           // Bridge
           ctx.strokeStyle = "#1e293b";
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 5 * scaleFactor;
           ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.46, eyeY - 3);
-          ctx.lineTo(canvas.width * 0.54, eyeY - 3);
+          ctx.moveTo(canvas.width * 0.45, eyeY - 5 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.55, eyeY - 5 * scaleFactor);
           ctx.stroke();
 
-          // Light reflection glint
-          ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+          // Reflection highlights
+          ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
           ctx.beginPath();
-          ctx.ellipse(canvas.width * 0.42, eyeY - 4, 3, 6, Math.PI / 4, 0, Math.PI * 2);
-          ctx.ellipse(canvas.width * 0.54, eyeY - 4, 3, 6, Math.PI / 4, 0, Math.PI * 2);
+          ctx.ellipse(canvas.width * 0.41, eyeY - 6 * scaleFactor, 5 * scaleFactor, 10 * scaleFactor, Math.PI / 4, 0, Math.PI * 2);
+          ctx.ellipse(canvas.width * 0.55, eyeY - 6 * scaleFactor, 5 * scaleFactor, 10 * scaleFactor, Math.PI / 4, 0, Math.PI * 2);
           ctx.fill();
         } else if (accessoryId === "round") {
           // Retro Round Glasses
-          ctx.strokeStyle = "#64748b"; // Dark steel frame
-          ctx.lineWidth = 2.5;
+          ctx.strokeStyle = "#475569"; // Dark steel
+          ctx.lineWidth = 4 * scaleFactor;
+
+          const lensRadius = 24 * scaleFactor;
 
           // Left Lens
           ctx.beginPath();
-          ctx.arc(canvas.width * 0.44, eyeY, 14, 0, Math.PI * 2);
+          ctx.arc(canvas.width * 0.43, eyeY, lensRadius, 0, Math.PI * 2);
           ctx.stroke();
 
           // Right Lens
           ctx.beginPath();
-          ctx.arc(canvas.width * 0.56, eyeY, 14, 0, Math.PI * 2);
+          ctx.arc(canvas.width * 0.57, eyeY, lensRadius, 0, Math.PI * 2);
           ctx.stroke();
 
           // Bridge
           ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.47, eyeY - 2);
-          ctx.lineTo(canvas.width * 0.53, eyeY - 2);
+          ctx.moveTo(canvas.width * 0.46, eyeY - 2 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.54, eyeY - 2 * scaleFactor);
           ctx.stroke();
         } else if (accessoryId === "aviators") {
           // Gold Aviators
-          ctx.strokeStyle = "#fbbf24"; // Gold metal frame
-          ctx.fillStyle = "rgba(251, 191, 36, 0.35)"; // Amber gradient tint
-          ctx.lineWidth = 2;
+          ctx.strokeStyle = "#d97706"; // Rich gold frame
+          ctx.fillStyle = "rgba(251, 191, 36, 0.35)"; // Gold tint
+          ctx.lineWidth = 3 * scaleFactor;
 
-          // Left Aviator lens shape
+          // Left Aviator shape
           ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.39, eyeY - 9);
-          ctx.lineTo(canvas.width * 0.49, eyeY - 9);
-          ctx.lineTo(canvas.width * 0.48, eyeY + 11);
-          ctx.lineTo(canvas.width * 0.41, eyeY + 9);
+          ctx.moveTo(canvas.width * 0.35, eyeY - 14 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.50, eyeY - 14 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.48, eyeY + 18 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.38, eyeY + 15 * scaleFactor);
           ctx.closePath();
           ctx.fill();
           ctx.stroke();
 
-          // Right Aviator lens shape
+          // Right Aviator shape
           ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.51, eyeY - 9);
-          ctx.lineTo(canvas.width * 0.61, eyeY - 9);
-          ctx.lineTo(canvas.width * 0.59, eyeY + 11);
-          ctx.lineTo(canvas.width * 0.52, eyeY + 9);
+          ctx.moveTo(canvas.width * 0.50, eyeY - 14 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.65, eyeY - 14 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.62, eyeY + 18 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.52, eyeY + 15 * scaleFactor);
           ctx.closePath();
           ctx.fill();
           ctx.stroke();
 
           // Double Bridge
           ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.48, eyeY - 7);
-          ctx.lineTo(canvas.width * 0.52, eyeY - 7);
-          ctx.moveTo(canvas.width * 0.48, eyeY - 3);
-          ctx.lineTo(canvas.width * 0.52, eyeY - 3);
+          ctx.moveTo(canvas.width * 0.46, eyeY - 11 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.54, eyeY - 11 * scaleFactor);
+          ctx.moveTo(canvas.width * 0.46, eyeY - 5 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.54, eyeY - 5 * scaleFactor);
           ctx.stroke();
         } else if (accessoryId === "cyberpunk") {
           // Cyan Cyberpunk Visor
-          ctx.fillStyle = "rgba(6, 182, 212, 0.82)";
+          ctx.fillStyle = "rgba(6, 182, 212, 0.85)";
           ctx.strokeStyle = "#22d3ee";
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 3 * scaleFactor;
 
           ctx.beginPath();
-          // Draw visor plate
-          ctx.roundRect(canvas.width * 0.37, eyeY - 11, canvas.width * 0.26, 22, 5);
+          ctx.roundRect(canvas.width * 0.33, eyeY - 16 * scaleFactor, canvas.width * 0.34, 32 * scaleFactor, 8 * scaleFactor);
           ctx.fill();
           ctx.stroke();
 
-          // Laser neon scanning beam lines
+          // Horizontal glow line
           ctx.strokeStyle = "#ffffff";
-          ctx.lineWidth = 1.5;
+          ctx.lineWidth = 2 * scaleFactor;
           ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.39, eyeY);
-          ctx.lineTo(canvas.width * 0.61, eyeY);
+          ctx.moveTo(canvas.width * 0.35, eyeY);
+          ctx.lineTo(canvas.width * 0.65, eyeY);
           ctx.stroke();
         }
       }
@@ -318,28 +324,28 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
         if (headId === "crown") {
           // Golden Royal Crown
           ctx.fillStyle = "#fbbf24";
-          ctx.strokeStyle = "#b45309";
-          ctx.lineWidth = 2;
+          ctx.strokeStyle = "#d97706";
+          ctx.lineWidth = 3.5 * scaleFactor;
 
           ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.43, headY);
-          ctx.lineTo(canvas.width * 0.41, headY - 18);
-          ctx.lineTo(canvas.width * 0.46, headY - 7);
-          ctx.lineTo(canvas.width * 0.50, headY - 24); // Center Peak
-          ctx.lineTo(canvas.width * 0.54, headY - 7);
-          ctx.lineTo(canvas.width * 0.59, headY - 18);
-          ctx.lineTo(canvas.width * 0.57, headY);
+          ctx.moveTo(canvas.width * 0.38, headY);
+          ctx.lineTo(canvas.width * 0.35, headY - 32 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.44, headY - 12 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.50, headY - 42 * scaleFactor); // central spire
+          ctx.lineTo(canvas.width * 0.56, headY - 12 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.65, headY - 32 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.62, headY);
           ctx.closePath();
           ctx.fill();
           ctx.stroke();
 
           // Royal Ruby & Sapphire Jewels
           ctx.fillStyle = "#ef4444";
-          ctx.beginPath(); ctx.arc(canvas.width * 0.41, headY - 19, 3, 0, Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.arc(canvas.width * 0.35, headY - 33 * scaleFactor, 5 * scaleFactor, 0, Math.PI*2); ctx.fill();
           ctx.fillStyle = "#3b82f6";
-          ctx.beginPath(); ctx.arc(canvas.width * 0.50, headY - 25, 3.5, 0, Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.arc(canvas.width * 0.50, headY - 43 * scaleFactor, 6 * scaleFactor, 0, Math.PI*2); ctx.fill();
           ctx.fillStyle = "#ef4444";
-          ctx.beginPath(); ctx.arc(canvas.width * 0.59, headY - 19, 3, 0, Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.arc(canvas.width * 0.65, headY - 33 * scaleFactor, 5 * scaleFactor, 0, Math.PI*2); ctx.fill();
         } else if (headId === "flower") {
           // Flower Headband
           const drawFlower = (cx: number, cy: number, r: number, color: string) => {
@@ -352,48 +358,48 @@ export const RecoloredCharacter: React.FC<RecoloredCharacterProps> = ({
               ctx.arc(px, py, r * 0.65, 0, Math.PI * 2);
               ctx.fill();
             }
-            ctx.fillStyle = "#fef08a"; // Gold center
+            ctx.fillStyle = "#fef08a"; // Center dot
             ctx.beginPath(); ctx.arc(cx, cy, r * 0.4, 0, Math.PI * 2); ctx.fill();
           };
 
-          drawFlower(canvas.width * 0.45, headY - 4, 7, "#f43f5e"); // Pink-Red Rose
-          drawFlower(canvas.width * 0.50, headY - 7, 8.5, "#ffffff"); // White Daisy
-          drawFlower(canvas.width * 0.55, headY - 4, 7, "#60a5fa"); // Sky Orchid
+          drawFlower(canvas.width * 0.42, headY - 6 * scaleFactor, 12 * scaleFactor, "#f43f5e");
+          drawFlower(canvas.width * 0.50, headY - 12 * scaleFactor, 14 * scaleFactor, "#ffffff");
+          drawFlower(canvas.width * 0.58, headY - 6 * scaleFactor, 12 * scaleFactor, "#60a5fa");
         } else if (headId === "catears") {
           // Furry Neko Cat Ears
-          const hairBaseColor = "#475569"; // Slate gray ears
+          const hairBaseColor = "#334155";
 
           // Left Ear
           ctx.fillStyle = hairBaseColor;
           ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.41, headY - 2);
-          ctx.lineTo(canvas.width * 0.36, headY - 21);
-          ctx.lineTo(canvas.width * 0.45, headY - 9);
+          ctx.moveTo(canvas.width * 0.41, headY - 3 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.33, headY - 34 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.46, headY - 14 * scaleFactor);
           ctx.closePath();
           ctx.fill();
 
-          ctx.fillStyle = "#fda4af"; // inner pink ear skin
+          ctx.fillStyle = "#fda4af"; // inner pink
           ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.40, headY - 3);
-          ctx.lineTo(canvas.width * 0.37, headY - 17);
-          ctx.lineTo(canvas.width * 0.43, headY - 8);
+          ctx.moveTo(canvas.width * 0.40, headY - 4 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.35, headY - 28 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.44, headY - 13 * scaleFactor);
           ctx.closePath();
           ctx.fill();
 
           // Right Ear
           ctx.fillStyle = hairBaseColor;
           ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.59, headY - 2);
-          ctx.lineTo(canvas.width * 0.64, headY - 21);
-          ctx.lineTo(canvas.width * 0.55, headY - 9);
+          ctx.moveTo(canvas.width * 0.59, headY - 3 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.67, headY - 34 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.54, headY - 14 * scaleFactor);
           ctx.closePath();
           ctx.fill();
 
           ctx.fillStyle = "#fda4af";
           ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.60, headY - 3);
-          ctx.lineTo(canvas.width * 0.63, headY - 17);
-          ctx.lineTo(canvas.width * 0.57, headY - 8);
+          ctx.moveTo(canvas.width * 0.60, headY - 4 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.65, headY - 28 * scaleFactor);
+          ctx.lineTo(canvas.width * 0.56, headY - 13 * scaleFactor);
           ctx.closePath();
           ctx.fill();
         }
