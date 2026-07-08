@@ -1,23 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Character, CharacterState } from "./Character";
-import { motion, AnimatePresence } from "framer-motion";
 import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Droplet, Clock, Check, ShieldAlert } from "lucide-react";
+import { ChromaKeyVideo } from "./ChromaKeyVideo";
 
 export const OverlayView: React.FC = () => {
   const [visible, setVisible] = useState(false);
-  const [charState, setCharState] = useState<CharacterState>("idle");
-  const [outfit, setOutfit] = useState("hoodie_blue");
-  const [gender, setGender] = useState("Female");
   const [userName, setUserName] = useState("Friend");
   const [showPopup, setShowPopup] = useState(false);
   const [overdue, setOverdue] = useState(false);
-
-  // Animation coordinates
-  const [charX, setCharX] = useState(-200); // Start offscreen left
-  const [isAnimating, setIsAnimating] = useState(false);
 
   // Set initial click-through
   useEffect(() => {
@@ -38,21 +30,15 @@ export const OverlayView: React.FC = () => {
         "start-reminder",
         (event) => {
           setUserName(event.payload.name || "Friend");
-          setOutfit(event.payload.outfit || "hoodie_blue");
-          setGender(event.payload.gender || "Female");
           setVisible(true);
           setOverdue(false);
-          setShowPopup(false);
-          setCharState("walking");
-          setCharX(-150);
-          setIsAnimating(true);
+          setShowPopup(true);
         }
       );
 
       // 2. Overdue event
       unlistenOverdue = await listen("reminder-overdue", () => {
         setOverdue(true);
-        setCharState("sad");
       });
 
       // 3. Action completions forwarded from main window
@@ -79,33 +65,6 @@ export const OverlayView: React.FC = () => {
       if (unlistenSkip) unlistenSkip();
     };
   }, []);
-
-  // Walk in animation trigger
-  useEffect(() => {
-    if (isAnimating && charState === "walking" && charX < window.innerWidth - 320) {
-      const interval = setInterval(() => {
-        setCharX((prev) => {
-          const next = prev + 5;
-          const stopPoint = window.innerWidth - 300;
-          if (next >= stopPoint) {
-            clearInterval(interval);
-            setIsAnimating(false);
-            setCharState("waving");
-
-            // Wait 1.5 seconds, then show popup and stop waving
-            setTimeout(() => {
-              setCharState("idle");
-              setShowPopup(true);
-            }, 1500);
-
-            return stopPoint;
-          }
-          return next;
-        });
-      }, 16); // ~60fps
-      return () => clearInterval(interval);
-    }
-  }, [isAnimating, charState, charX]);
 
   // Click-through toggle based on mouse hover over interactive elements
   const setInteractive = (interactive: boolean) => {
@@ -134,74 +93,56 @@ export const OverlayView: React.FC = () => {
   if (!visible) return null;
 
   return (
-    <div className="relative w-full h-full transparent-bg select-none pointer-events-none">
+    <div className="fixed inset-0 w-screen h-screen flex items-center justify-center transparent-bg select-none pointer-events-none">
+      
+      {/* Centered HUD Overlay card */}
+      {showPopup && (
+        <div
+          className="flex flex-col items-center gap-6 p-8 rounded-3xl glass-panel border border-blue-500/20 shadow-2xl pointer-events-auto"
+          onMouseEnter={() => setInteractive(true)}
+          onMouseLeave={() => setInteractive(false)}
+          style={{
+            width: "360px",
+            background: "rgba(15, 23, 42, 0.75)",
+            backdropFilter: "blur(12px)",
+            zIndex: 100
+          }}
+        >
+          {/* ChromaKey video player in place of avatar */}
+          <div className="relative w-64 h-64 rounded-2xl overflow-hidden flex items-center justify-center bg-slate-950/20">
+            <ChromaKeyVideo width={256} height={256} className="w-full h-full object-contain" />
+          </div>
 
-      {/* Walking Character Container */}
-      <div
-        className="absolute bottom-0"
-        style={{
-          left: `${charX}px`,
-          zIndex: 50,
-        }}
-        onMouseEnter={() => setInteractive(true)}
-        onMouseLeave={() => setInteractive(false)}
-      >
-        <Character state={charState} outfit={outfit} scale={1.1} gender={gender} />
-      </div>
-
-      {/* Reminder Popup Bubble */}
-      <AnimatePresence>
-        {showPopup && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="absolute bottom-16 glass-panel rounded-2xl p-5 shadow-2xl flex flex-col pointer-events-auto border border-blue-500/30"
-            style={{
-              right: "260px", // Just left of the character
-              width: "280px",
-              zIndex: 60,
-            }}
-            onMouseEnter={() => setInteractive(true)}
-            onMouseLeave={() => setInteractive(false)}
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <div className={`p-2 rounded-lg ${overdue ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}>
-                {overdue ? <ShieldAlert size={20} /> : <Droplet size={20} />}
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <div className={`p-1.5 rounded-lg ${overdue ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}>
+                {overdue ? <ShieldAlert size={16} /> : <Droplet size={16} />}
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                  {overdue ? "Overdue Hydration!" : "Time to Drink Water"}
-                </h3>
-                <p className="text-xs text-slate-400">
-                  {overdue ? "Your body is waiting..." : `Hi ${userName}, stay healthy!`}
-                </p>
-              </div>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                {overdue ? "Overdue Hydration!" : "Time to Drink Water"}
+              </h3>
             </div>
-
-            <p className="text-xs text-slate-300 mb-4 leading-relaxed">
-              {overdue
-                ? "You missed your reminder. Drinking now will recover your current streak!"
-                : "Your body needs fluids to keep you energized. Drink a glass of water!"}
+            <p className="text-xs text-slate-400">
+              {overdue ? "Your body is waiting..." : `Hi ${userName}, stay healthy!`}
             </p>
+          </div>
 
-            <div className="flex gap-2">
-              <button
-                onClick={onDoneClick}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-blue-500/20 cursor-pointer active:scale-95 transition-all"
-              >
-                <Check size={14} /> Done
-              </button>
-              <button
-                onClick={onSnoozeClick}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg cursor-pointer active:scale-95 transition-all"
-              >
-                <Clock size={14} /> Snooze
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={onDoneClick}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-650 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-500/10 cursor-pointer active:scale-95 transition-all"
+            >
+              <Check size={14} /> Done
+            </button>
+            <button
+              onClick={onSnoozeClick}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-4 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-350 text-xs font-semibold rounded-xl cursor-pointer active:scale-95 transition-all"
+            >
+              <Clock size={14} /> Snooze
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

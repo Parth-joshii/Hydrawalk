@@ -111,21 +111,19 @@ pub fn run() {
                 
                 let width = size.width;
                 let height = size.height;
-                
-                if let Some(overlay) = app.get_webview_window("overlay") {
-                    let logical_width = width as f64 / scale_factor;
-                    let logical_height = 250.0;
-                    
-                    let new_size = tauri::LogicalSize::new(logical_width, logical_height);
-                    let _ = overlay.set_size(new_size);
-                    
-                    let monitor_logical_height = height as f64 / scale_factor;
-                    let x_pos = 0.0;
-                    let y_pos = monitor_logical_height - logical_height - 40.0; // 40px offset for Windows taskbar
-                    
-                    let new_pos = tauri::LogicalPosition::new(x_pos, y_pos);
-                    let _ = overlay.set_position(new_pos);
-                }
+                                if let Some(overlay) = app.get_webview_window("overlay") {
+                     let logical_width = width as f64 / scale_factor;
+                     let logical_height = height as f64 / scale_factor;
+                     
+                     let new_size = tauri::LogicalSize::new(logical_width, logical_height);
+                     let _ = overlay.set_size(new_size);
+                     
+                     let x_pos = 0.0;
+                     let y_pos = 0.0;
+                     
+                     let new_pos = tauri::LogicalPosition::new(x_pos, y_pos);
+                     let _ = overlay.set_position(new_pos);
+                 }
             }
 
             Ok(())

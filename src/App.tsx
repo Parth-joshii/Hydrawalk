@@ -10,8 +10,8 @@ import { Settings as SettingsView } from "./components/Settings";
 import { isTauriRuntime } from "./utils/runtime";
 import { Home, BarChart3, Trophy, User as UserIcon, Settings, Play, Pause, Flame, LogOut } from "lucide-react";
 import { LoginView } from "./components/LoginView";
-import { Character } from "./components/Character";
 import { DrinkingCameraModal } from "./components/DrinkingCameraModal";
+import { ChromaKeyVideo } from "./components/ChromaKeyVideo";
 
 // Lazy-load the desktop overlay to prevent Tauri API crashes in Vercel web environments
 const OverlayView = lazy(() => import("./components/OverlayView").then((m) => ({ default: m.OverlayView })));
@@ -298,7 +298,7 @@ const MainAppContent: React.FC = () => {
             {/* Animated Character Preview */}
             <div className="w-48 h-48 bg-slate-900/40 border border-slate-800/40 rounded-3xl flex items-center justify-center relative overflow-hidden mb-6">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.08)_0%,transparent_75%)]" />
-              <Character state="waving" scale={1.1} gender={user.gender} />
+              <ChromaKeyVideo width={192} height={192} className="w-full h-full object-contain" />
             </div>
 
             {/* Buttons */}

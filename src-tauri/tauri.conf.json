@@ -24,7 +24,7 @@
         "label": "overlay",
         "title": "HydraWalk Overlay",
         "width": 1920,
-        "height": 250,
+        "height": 1080,
         "transparent": true,
         "decorations": false,
         "alwaysOnTop": true,
