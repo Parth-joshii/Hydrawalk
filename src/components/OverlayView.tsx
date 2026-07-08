@@ -6,16 +6,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Droplet, Clock, Check, ShieldAlert } from "lucide-react";
 
-interface ConfettiParticle {
-  id: number;
-  x: number;
-  y: number;
-  color: string;
-  size: number;
-  angle: number;
-  speed: number;
-}
-
 export const OverlayView: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [charState, setCharState] = useState<CharacterState>("idle");
@@ -24,7 +14,6 @@ export const OverlayView: React.FC = () => {
   const [userName, setUserName] = useState("Friend");
   const [showPopup, setShowPopup] = useState(false);
   const [overdue, setOverdue] = useState(false);
-  const [confetti, setConfetti] = useState<ConfettiParticle[]>([]);
 
   // Animation coordinates
   const [charX, setCharX] = useState(-200); // Start offscreen left
@@ -68,15 +57,15 @@ export const OverlayView: React.FC = () => {
 
       // 3. Action completions forwarded from main window
       unlistenDone = await listen("action-done", () => {
-        handleActionResponse("done");
+        handleActionResponse();
       });
 
       unlistenSnooze = await listen("action-snooze", () => {
-        handleActionResponse("snooze");
+        handleActionResponse();
       });
 
       unlistenSkip = await listen("action-skip", () => {
-        handleActionResponse("skip");
+        handleActionResponse();
       });
     }
 
@@ -123,96 +112,15 @@ export const OverlayView: React.FC = () => {
     invoke("set_overlay_click_through", { ignore: !interactive });
   };
 
-  const handleActionResponse = async (action: "done" | "snooze" | "skip" | "close") => {
+  const handleActionResponse = async () => {
     setShowPopup(false);
-
-    if (action === "done") {
-      setCharState("happy");
-      triggerConfettiBurst();
-
-      // Celebrate for 3 seconds, then walk away
-      setTimeout(() => {
-        walkOut();
-      }, 3000);
-    } else if (action === "snooze") {
-      setCharState("idle");
-      setTimeout(() => {
-        walkOut();
-      }, 1000);
-    } else if (action === "skip") {
-      setCharState("sad");
-      setTimeout(() => {
-        walkOut();
-      }, 1500);
-    } else {
-      // Close/ignore
-      walkOut();
+    setVisible(false);
+    try {
+      await getCurrentWindow().hide();
+    } catch (err) {
+      console.error("Failed to hide overlay window:", err);
     }
   };
-
-  const walkOut = () => {
-    setCharState("walking");
-    setIsAnimating(true);
-    setInteractive(false); // Make click-through while walking away
-
-    const interval = setInterval(() => {
-      setCharX((prev) => {
-        const next = prev + 5;
-        if (next >= window.innerWidth + 200) {
-          clearInterval(interval);
-          setIsAnimating(false);
-          setVisible(false);
-          getCurrentWindow().hide(); // Hide the overlay window again
-          return window.innerWidth + 200;
-        }
-        return next;
-      });
-    }, 16);
-  };
-
-  // Confetti logic
-  const triggerConfettiBurst = () => {
-    const colors = ["#60a5fa", "#3b82f6", "#2563eb", "#bfdbfe", "#93c5fd", "#f43f5e", "#10b981", "#fbbf24"];
-    const particles: ConfettiParticle[] = [];
-
-    for (let i = 0; i < 40; i++) {
-      particles.push({
-        id: Math.random(),
-        x: window.innerWidth - 225, // Centered around the character
-        y: 130,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        size: Math.random() * 8 + 4,
-        angle: Math.random() * 360,
-        speed: Math.random() * 8 + 4,
-      });
-    }
-
-    setConfetti(particles);
-  };
-
-  // Animate confetti gravity and drag
-  useEffect(() => {
-    if (confetti.length > 0) {
-      const interval = setInterval(() => {
-        setConfetti((prev) =>
-          prev
-            .map((p) => {
-              const rad = (p.angle * Math.PI) / 180;
-              const dx = Math.cos(rad) * p.speed;
-              const dy = Math.sin(rad) * p.speed + 0.15; // Gravity
-              return {
-                ...p,
-                x: p.x + dx,
-                y: p.y + dy,
-                speed: p.speed * 0.96, // Drag
-              };
-            })
-            .filter((p) => p.y < window.innerHeight && p.x > 0 && p.x < window.innerWidth)
-        );
-      }, 16);
-      return () => clearInterval(interval);
-    }
-  }, [confetti]);
 
   // Click triggers sent back to AppContext
   const onDoneClick = () => {
@@ -227,23 +135,6 @@ export const OverlayView: React.FC = () => {
 
   return (
     <div className="relative w-full h-full transparent-bg select-none pointer-events-none">
-
-      {/* Dynamic Confetti Particles */}
-      {confetti.map((p) => (
-        <div
-          key={p.id}
-          className="absolute rounded-sm pointer-events-none"
-          style={{
-            left: `${p.x}px`,
-            top: `${p.y}px`,
-            width: `${p.size}px`,
-            height: `${p.size}px`,
-            backgroundColor: p.color,
-            transform: `rotate(${p.x * 2}deg)`,
-            zIndex: 40,
-          }}
-        />
-      ))}
 
       {/* Walking Character Container */}
       <div
