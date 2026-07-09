@@ -229,7 +229,15 @@ export function playReminderSound(
         else if (tone === "digital") intervalMs = 1200;
         
         alarmIntervalId = setInterval(() => {
-          playToneOnce();
+          try {
+            playToneOnce();
+          } catch (err) {
+            console.warn("Async tone playback error:", err);
+            if (alarmIntervalId) {
+              clearInterval(alarmIntervalId);
+              alarmIntervalId = null;
+            }
+          }
         }, intervalMs);
       }
     }
