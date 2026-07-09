@@ -1,12 +1,9 @@
-import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:webview_flutter/webview_flutter.dart' as mobile;
-import 'package:webview_windows/webview_windows.dart' as desktop;
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  // Set status bar styles for mobile
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
@@ -24,7 +21,7 @@ class HydraWalkApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0F172A), // Slate 900
+        scaffoldBackgroundColor: const Color(0xFF0F172A),
       ),
       home: const WebViewContainer(),
     );
@@ -39,107 +36,46 @@ class WebViewContainer extends StatefulWidget {
 }
 
 class _WebViewContainerState extends State<WebViewContainer> {
-  // Mobile Controller
-  mobile.WebViewController? _mobileController;
-  
-  // Desktop Controller
-  final _desktopController = desktop.WebviewController();
-  
   bool _isLoading = true;
-  bool _isWindows = false;
-  String _loadingProgress = "0%";
+  double _loadingProgress = 0;
   final String _appUrl = "https://hydrawalk.vercel.app";
 
   @override
-  void initState() {
-    super.initState();
-    _isWindows = Platform.isWindows;
-    if (_isWindows) {
-      _initWindowsWebView();
-    } else {
-      _initMobileWebView();
-    }
-  }
-
-  Future<void> _initWindowsWebView() async {
-    try {
-      await _desktopController.initialize();
-      await _desktopController.setBackgroundColor(const Color(0xFF0F172A));
-      await _desktopController.loadUrl(_appUrl);
-      
-      _desktopController.loadingState.listen((state) {
-        if (state == desktop.LoadingState.navigationCompleted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      });
-    } catch (e) {
-      debugPrint("Windows WebView failed to initialize: $e");
-    }
-  }
-
-  void _initMobileWebView() {
-    _mobileController = mobile.WebViewController()
-      ..setJavaScriptMode(mobile.JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0xFF0F172A))
-      ..setNavigationDelegate(
-        mobile.NavigationDelegate(
-          onProgress: (int progress) {
-            setState(() {
-              _loadingProgress = "$progress%";
-            });
-          },
-          onPageStarted: (String url) {
-            setState(() {
-              _isLoading = true;
-            });
-          },
-          onPageFinished: (String url) {
-            setState(() {
-              _isLoading = false;
-            });
-          },
-          onWebResourceError: (mobile.WebResourceError error) {
-            debugPrint("Mobile WebView error: ${error.description}");
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(_appUrl));
-  }
-
-  @override
-  void dispose() {
-    if (_isWindows) {
-      _desktopController.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    Widget webViewWidget;
-
-    if (_isWindows) {
-      webViewWidget = _desktopController.value.isInitialized
-          ? desktop.Webview(_desktopController)
-          : const Center(
-              child: Text(
-                "Initializing Windows graphics...",
-                style: TextStyle(color: Colors.white70),
-              ),
-            );
-    } else {
-      webViewWidget = mobile.WebViewWidget(controller: _mobileController!);
-    }
-
     return Scaffold(
       body: SafeArea(
-        top: !_isWindows, // Allow full bleed on Windows, safe area on mobile
+        top: false,
         bottom: false,
         child: Stack(
           children: [
-            webViewWidget,
+            InAppWebView(
+              initialUrlRequest: URLRequest(url: WebUri(_appUrl)),
+              initialSettings: InAppWebViewSettings(
+                javaScriptEnabled: true,
+                domStorageEnabled: true,
+                useWideViewPort: true,
+                loadWithOverviewMode: true,
+                transparentBackground: true,
+              ),
+              onProgressChanged: (controller, progress) {
+                setState(() {
+                  _loadingProgress = progress / 100;
+                  if (progress >= 100) {
+                    _isLoading = false;
+                  }
+                });
+              },
+              onLoadStart: (controller, url) {
+                setState(() {
+                  _isLoading = true;
+                });
+              },
+              onLoadStop: (controller, url) {
+                setState(() {
+                  _isLoading = false;
+                });
+              },
+            ),
             if (_isLoading)
               Container(
                 color: const Color(0xFF0F172A),
@@ -147,7 +83,6 @@ class _WebViewContainerState extends State<WebViewContainer> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Hydration Icon Glow
                       Container(
                         width: 72,
                         height: 72,
@@ -183,7 +118,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        _isWindows ? "Loading desktop view..." : "Loading $_loadingProgress",
+                        "Loading ${(_loadingProgress * 100).toInt()}%",
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white54,
