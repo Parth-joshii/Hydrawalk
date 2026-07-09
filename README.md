@@ -8,7 +8,7 @@ HydraWalk is your premium hydration companion. Track water intake, unlock charac
 
 You can download the compiled native standalone applications directly from the link below:
 
-### 👉 [Click here to go to the Downloads Page](https://github.com/Parth-joshii/Hydrawalk/actions/runs/29006671375)
+### 👉 [Click here to go to the Downloads Page](https://github.com/Parth-joshii/Hydrawalk/actions/runs/29018447551)
 
 At the bottom of the page, you will find:
 * **📱 `hydrawalk-android-apk`**: The mobile Android app installer (.apk)
