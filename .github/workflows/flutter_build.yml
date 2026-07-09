@@ -28,10 +28,19 @@ jobs:
           cd hydrawalk_flutter
           flutter pub get
 
+      - name: Configure Android SDK Path
+        run: |
+          flutter config --android-sdk /usr/local/lib/android/sdk
+
       - name: Build Android APK
         run: |
           cd hydrawalk_flutter
           flutter build apk --release > build_log.txt 2>&1
+
+      - name: Print Android Build Logs on Failure
+        if: failure()
+        run: |
+          cat hydrawalk_flutter/build_log.txt
 
       - name: Upload Android Build Logs
         if: always()
@@ -71,6 +80,11 @@ jobs:
         run: |
           cd hydrawalk_flutter
           flutter build windows --release > build_log.txt 2>&1
+
+      - name: Print Windows Build Logs on Failure
+        if: failure()
+        run: |
+          type hydrawalk_flutter\build_log.txt
 
       - name: Upload Windows Build Logs
         if: always()
