@@ -321,13 +321,17 @@ export async function sendNativeNotification(title: string, body: string) {
   try {
     // Keep track of web notifications
     if (typeof window !== "undefined" && "Notification" in window) {
-      let permission = Notification.permission;
-      if (permission === "default") {
-        permission = await Notification.requestPermission();
-      }
-      if (permission === "granted") {
-        const n = new Notification(title, { body, icon: "icons/128x128.png" });
-        activeNotifications.push(n);
+      try {
+        let permission = Notification.permission;
+        if (permission === "default") {
+          permission = await Notification.requestPermission();
+        }
+        if (permission === "granted") {
+          const n = new Notification(title, { body, icon: "icons/128x128.png" });
+          activeNotifications.push(n);
+        }
+      } catch (err) {
+        console.warn("HTML5 Notification not supported or blocked in this context:", err);
       }
     }
 
