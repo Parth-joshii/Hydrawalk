@@ -31,10 +31,18 @@ jobs:
       - name: Build Android APK
         run: |
           cd hydrawalk_flutter
-          flutter build apk --release
+          flutter build apk --release > build_log.txt 2>&1
+
+      - name: Upload Android Build Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build-log
+          path: hydrawalk_flutter/build_log.txt
 
       - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: hydrawalk-android-apk
           path: hydrawalk_flutter/build/app/outputs/flutter-apk/app-release.apk
@@ -62,15 +70,24 @@ jobs:
       - name: Build Windows App
         run: |
           cd hydrawalk_flutter
-          flutter build windows --release
+          flutter build windows --release > build_log.txt 2>&1
+
+      - name: Upload Windows Build Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-log
+          path: hydrawalk_flutter/build_log.txt
 
       - name: Archive Windows Release
         shell: powershell
+        if: success()
         run: |
           Compress-Archive -Path hydrawalk_flutter/build/windows/x64/runner/Release/* -DestinationPath hydrawalk-windows-x64.zip
 
       - name: Upload Windows App Artifact
         uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: hydrawalk-windows-desktop
           path: hydrawalk-windows-x64.zip
